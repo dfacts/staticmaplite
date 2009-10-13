@@ -30,6 +30,9 @@ ini_set('display_errors','off');
 
 Class staticMapLite {
 
+	protected $maxWidth = 1024;
+	protected $maxHeight = 1024;
+
 	protected $tileSize = 256;
 	protected $tileSrcUrl = array(	'mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
 									'osmarenderer' => 'http://c.tah.openstreetmap.org/Tiles/tile/{Z}/{X}/{Y}.png',
@@ -78,7 +81,9 @@ Class staticMapLite {
 		if($_GET['size']){
 			list($this->width, $this->height) = split('x',$_GET['size']);
 			$this->width = intval($this->width);
+			if($this->width > $this->maxWidth) $this->width = $this->maxWidth;
 			$this->height = intval($this->height);
+			if($this->height > $this->maxHeight) $this->height = $this->maxHeight;
 		}
 		if($_GET['markers']){
 			$markers = split('%7C|\|',$_GET['markers']);
