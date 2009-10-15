@@ -1,7 +1,7 @@
 <?php
 
 /**
- * staticMapLite 0.02
+ * staticMapLite 0.03
  *
  * Copyright 2009 Gerhard Koch
  *
@@ -42,11 +42,27 @@ Class staticMapLite {
 	protected $tileDefaultSrc = 'mapnik';
 	protected $markerBaseDir = 'images/markers';
 	protected $osmLogo = 'images/osm_logo.png';
+	
+	protected $markerPrototypes = array('lighblue' => array('regex'=>'/^lightblue([0-9]+)$/', 
+															'extension'=>'.png',
+															'shadow'=>false, 
+															'offsetImage'=>'0,-19',
+															'offsetShadow'=>false
+														),
+										'ol-marker'=> array('regex'=>'/^ol-marker(|-blue|-gold|-green)+$/',
+															'extension'=>'ol-marker{1}.png',
+															'shadow'=>'../marker_shadow.png', 
+															'offsetImage'=>'-10,-25', 
+															'offsetShadow'=>'-1,-13'
+														)
+									);
+
+	
 
 	protected $useTileCache = true;
 	protected $tileCacheBaseDir = 'cache/tiles';
 
-	protected $useMapCache = true;
+	protected $useMapCache = false;
 	protected $mapCacheBaseDir = 'cache/maps';
 	protected $mapCacheID = '';
 	protected $mapCacheFile = '';
@@ -88,11 +104,11 @@ Class staticMapLite {
 		if($_GET['markers']){
 			$markers = split('%7C|\|',$_GET['markers']);
 			foreach($markers as $marker){
-					list($markerLat, $markerLon, $markerImage) = split(',',$marker);
+					list($markerLat, $markerLon, $markerType) = split(',',$marker);
 					$markerLat = floatval($markerLat);
 					$markerLon = floatval($markerLon);
-					$markerImage = basename($markerImage);
-					$this->markers[] = array('lat'=>$markerLat, 'lon'=>$markerLon, 'image'=>$markerImage);
+					$markerType = basename($markerType);
+					$this->markers[] = array('lat'=>$markerLat, 'lon'=>$markerLon, 'type'=>$markerType);
 			}
 			
 		}
@@ -142,22 +158,65 @@ Class staticMapLite {
 
 
 	public function placeMarkers(){
+		// loop thru marker array
 		foreach($this->markers as $marker){
+			// set some local variables
 			$markerLat = $marker['lat'];
 			$markerLon = $marker['lon'];
-			$markerImage = $marker['image'];
-			$markerIndex++;
-			$markerFilename = $markerImage?(file_exists($this->markerBaseDir.'/'.$markerImage.".png")?$markerImage:'lightblue'.$markerIndex):'lightblue'.$markerIndex;
-			if(file_exists($this->markerBaseDir.'/'.$markerFilename.".png")){
-				$markerImg = imagecreatefrompng($this->markerBaseDir.'/'.$markerFilename.".png");
+			$markerType = $marker['type'];
+			// clear variables from previous loops
+			$markerFilename = '';
+			$markerShadow = '';
+			$matches = false;
+			// check for marker type, get settings from markerPrototypes
+			if($markerType){
+				foreach($this->markerPrototypes as $markerPrototype){ 
+					if(preg_match($markerPrototype['regex'],$markerType,$matches)){
+						$markerFilename = $matches[0].$markerPrototype['extension'];
+						if($markerPrototype['offsetImage']){
+							list($markerImageOffsetX, $markerImageOffsetY)  = split(",",$markerPrototype['offsetImage']);
+						}
+						$markerShadow = $markerPrototype['shadow'];
+						if($markerShadow){
+							list($markerShadowOffsetX, $markerShadowOffsetY)  = split(",",$markerPrototype['offsetShadow']);
+						} 
+					}
+				}
+			}
+			
+			// check required files or set default
+			if(!file_exists($this->markerBaseDir.'/'.$markerFilename)){
+				$markerIndex++;
+				$markerFilename = 'lightblue'.$markerIndex.'.png';
+				$markerImageOffsetX = 0;
+				$markerImageOffsetY = -19;			
+			}
+			
+			// create img resource
+			if(file_exists($this->markerBaseDir.'/'.$markerFilename)){
+				$markerImg = imagecreatefrompng($this->markerBaseDir.'/'.$markerFilename);
 			} else {
 				$markerImg = imagecreatefrompng($this->markerBaseDir.'/lightblue1.png');				
 			}
+			
+			// check for shadow + create shadow recource
+			if($markerShadow && file_exists($this->markerBaseDir.'/'.$markerShadow)){
+				$markerShadowImg = imagecreatefrompng($this->markerBaseDir.'/'.$markerShadow);
+			}
+
+			// calc position
 			$destX = floor(($this->width/2)-$this->tileSize*($this->centerX-$this->lonToTile($markerLon, $this->zoom)));
 			$destY = floor(($this->height/2)-$this->tileSize*($this->centerY-$this->latToTile($markerLat, $this->zoom)));
-			$destY = $destY - imagesy($markerImg);
 
-			imagecopy($this->image, $markerImg, $destX, $destY, 0, 0, imagesx($markerImg), imagesy($markerImg));
+			// copy shadow on basemap
+			if($markerShadow && $markerShadowImg){
+				imagecopy($this->image, $markerShadowImg, $destX+intval($markerShadowOffsetX), $destY+intval($markerShadowOffsetY), 
+							0, 0, imagesx($markerShadowImg), imagesy($markerShadowImg));
+			}
+			
+			// copy marker on basemap above shadow
+			imagecopy($this->image, $markerImg, $destX+intval($markerImageOffsetX), $destY+intval($markerImageOffsetY), 
+							0, 0, imagesx($markerImg), imagesy($markerImg));
 		
 	};
 }
