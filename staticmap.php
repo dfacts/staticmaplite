@@ -50,7 +50,7 @@ Class staticMapLite {
 															'offsetShadow'=>false
 														),
 										'ol-marker'=> array('regex'=>'/^ol-marker(|-blue|-gold|-green)+$/',
-															'extension'=>'ol-marker{1}.png',
+															'extension'=>'.png',
 															'shadow'=>'../marker_shadow.png', 
 															'offsetImage'=>'-10,-25', 
 															'offsetShadow'=>'-1,-13'
@@ -62,7 +62,7 @@ Class staticMapLite {
 	protected $useTileCache = true;
 	protected $tileCacheBaseDir = 'cache/tiles';
 
-	protected $useMapCache = false;
+	protected $useMapCache = true;
 	protected $mapCacheBaseDir = 'cache/maps';
 	protected $mapCacheID = '';
 	protected $mapCacheFile = '';
@@ -183,14 +183,13 @@ Class staticMapLite {
 					}
 				}
 			}
-			
+
 			// check required files or set default
-			if(!file_exists($this->markerBaseDir.'/'.$markerFilename)){
+			if($markerFilename == '' || !file_exists($this->markerBaseDir.'/'.$markerFilename)){
 				$markerIndex++;
 				$markerFilename = 'lightblue'.$markerIndex.'.png';
 				$markerImageOffsetX = 0;
-				$markerImageOffsetY = -19;			
-			}
+				$markerImageOffsetY = -19;					}
 			
 			// create img resource
 			if(file_exists($this->markerBaseDir.'/'.$markerFilename)){
