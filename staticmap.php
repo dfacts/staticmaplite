@@ -43,18 +43,28 @@ Class staticMapLite {
 	protected $markerBaseDir = 'images/markers';
 	protected $osmLogo = 'images/osm_logo.png';
 	
-	protected $markerPrototypes = array('lighblue' => array('regex'=>'/^lightblue([0-9]+)$/', 
+	protected $markerPrototypes = array(// found at http://www.mapito.net/map-marker-icons.html
+										'lighblue' => array('regex'=>'/^lightblue([0-9]+)$/', 
 															'extension'=>'.png',
 															'shadow'=>false, 
 															'offsetImage'=>'0,-19',
 															'offsetShadow'=>false
 														),
+										// openlayers std markers
 										'ol-marker'=> array('regex'=>'/^ol-marker(|-blue|-gold|-green)+$/',
 															'extension'=>'.png',
 															'shadow'=>'../marker_shadow.png', 
 															'offsetImage'=>'-10,-25', 
 															'offsetShadow'=>'-1,-13'
+														),
+										// taken from http://www.visual-case.it/cgi-bin/vc/GMapsIcons.pl
+										'ylw'=> array('regex'=>'/^(pink|purple|red|ltblu|ylw)-pushpin$/',
+															'extension'=>'.png',
+															'shadow'=>'../marker_shadow.png', 
+															'offsetImage'=>'-10,-32', 
+															'offsetShadow'=>'-1,-13'
 														)
+														
 									);
 
 	
