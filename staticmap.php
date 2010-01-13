@@ -36,7 +36,10 @@ Class staticMapLite {
 	protected $tileSize = 256;
 	protected $tileSrcUrl = array(	'mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
 									'osmarenderer' => 'http://c.tah.openstreetmap.org/Tiles/tile/{Z}/{X}/{Y}.png',
-									'cycle' => 'http://c.andy.sandbox.cloudmade.com/tiles/cycle/{Z}/{X}/{Y}.png'
+									'cycle' => 'http://c.andy.sandbox.cloudmade.com/tiles/cycle/{Z}/{X}/{Y}.png',
+									'piste' => 'http://openpistemap.org/tiles/contours/{Z}/{X}/{Y}.png',
+									'topo' => 'http://topo.geofabrik.de/trails/{Z}/{X}/{Y}.png'
+
 	);
 	
 	protected $tileDefaultSrc = 'mapnik';
@@ -158,7 +161,14 @@ Class staticMapLite {
 		for($x=$startX; $x<=$endX; $x++){
 			for($y=$startY; $y<=$endY; $y++){
 				$url = str_replace(array('{Z}','{X}','{Y}'),array($this->zoom, $x, $y), $this->tileSrcUrl[$this->maptype]);
-				$tileImage = imagecreatefromstring($this->fetchTile($url));
+				$tileData = $this->fetchTile($url);
+				if($tileData){
+					$tileImage = imagecreatefromstring($tileData);
+				} else {
+					$tileImage = imagecreate($this->tileSize,$this->tileSize);
+					$color = imagecolorallocate($tileImage, 255, 255, 255);
+					@imagestring($tileImage,1,127,127,'err',$color);
+				}
 				$destX = ($x-$startX)*$this->tileSize+$this->offsetX;
 				$destY = ($y-$startY)*$this->tileSize+$this->offsetY;
 				imagecopy($this->image, $tileImage, $destX, $destY, 0, 0, $this->tileSize, $this->tileSize);
@@ -255,7 +265,7 @@ Class staticMapLite {
 	
 	public function mapCacheIDToFilename(){
 		if(!$this->mapCacheFile){
-			$this->mapCacheFile = $this->mapCacheBaseDir."/".substr($this->mapCacheID,0,2)."/".substr($this->mapCacheID,2,2)."/".substr($this->mapCacheID,4);
+			$this->mapCacheFile = $this->mapCacheBaseDir."/".$this->maptype."/".$this->zoom."/cache_".substr($this->mapCacheID,0,2)."/".substr($this->mapCacheID,2,2)."/".substr($this->mapCacheID,4);
 		}
 		return $this->mapCacheFile.".".$this->mapCacheExtension;
 	}
@@ -280,7 +290,7 @@ Class staticMapLite {
 		curl_setopt($ch, CURLOPT_URL, $url); 
 		$tile = curl_exec($ch); 
 		curl_close($ch); 
-		if($this->useTileCache){
+		if($tile && $this->useTileCache){
 			$this->writeTileToCache($url,$tile);
 		}
 		return $tile;
