@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de-de" lang="de-de">
+<head>	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>simpleMapWizzard</title>
+
+    <link rel="stylesheet" href="css/main.css" type="text/css" />
+    <link rel="stylesheet" href="js/openlayers/theme/default/style.css" type="text/css" />
+
+	<script src="http://www.openlayers.org/api/OpenLayers.js" type="text/javascript"></script>
+	<script src="http://openstreetmap.org/openlayers/OpenStreetMap.js" type="text/javascript"></script>
+	<script type="text/javascript" src="http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
+	<script type="text/javascript">
+
+		var map, layer;   
+		var perma = "";
+
+
+		/* init OL, map, dragFeature */
+		function initOpenLayers() {
+			map = new OpenLayers.Map('map', {
+				controls: [
+					new OpenLayers.Control.Attribution(),
+					new OpenLayers.Control.MouseDefaults(),
+					new OpenLayers.Control.PanZoomBar()]
+			});           
+			markers = new OpenLayers.Layer.Vector(
+				"Markers",
+				{
+					styleMap: new OpenLayers.StyleMap({
+						externalGraphic: "js/openlayers/img/marker-gold.png",
+						backgroundGraphic: "../images/marker_shadow.png",
+						backgroundXOffset: 0,
+						backgroundYOffset: -7,
+						graphicZIndex: 10,
+						backgroundGraphicZIndex: 11,
+						pointRadius: 10
+					}),
+					rendererOptions: {yOrdering: true}
+				}
+			);
+
+			mapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik", {
+				displayOutsideMaxExtent: true,
+				wrapDateLine: true
+			});
+
+			map.addLayer(mapnik);
+			
+			osma = new OpenLayers.Layer.OSM.Osmarender("Osmarender");
+			map.addLayer(osma);
+			
+			cylce = new OpenLayers.Layer.OSM.CycleMap("OpenCycleMap");
+			map.addLayer(cylce);
+
+			piste = new OpenLayers.Layer.OSM("openpistemap","http://openpistemap.org/tiles/contours/${z}/${x}/${y}.png");
+			map.addLayer(piste);
+
+			topo = new OpenLayers.Layer.OSM("topo.geofabrik.trails","http://topo.geofabrik.de/trails/${z}/${x}/${y}.png");
+			map.addLayer(topo);
+
+			
+			center = new OpenLayers.LonLat(-50,40).transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+			map.setCenter (center, 2);
+			
+			map.events.register( 'moveend', this, makeStaticCodeSnip);
+
+			map.addLayer(markers);
+
+			var dragFeature = new OpenLayers.Control.DragFeature(markers);
+			dragFeature.onComplete = makeStaticCodeSnip;
+			dragFeature.onDrag = makeStaticCodeSnip;
+			map.addControl(dragFeature);
+			dragFeature.activate();
+			
+			layerswitcher = new OpenLayers.Control.LayerSwitcher()
+			map.addControl(layerswitcher);
+			
+			map.events.register("changebaselayer", map, mapTypeChanged);
+			map.maptype = 'mapnik'; 
+		}
+		
+		function mapTypeChanged(){
+			switch(map.baseLayer.name){
+				case "Mapnik" : map.maptype = 'mapnik'; break;
+				case "openpistemap" : map.maptype = 'piste'; break;
+				case "Osmarender" : map.maptype = 'osmarenderer'; break;
+				case "OpenCycleMap" : map.maptype = 'cycle'; break;
+				case "topo.geofabrik.trails" : map.maptype = 'topo'; break;
+				default: map.maptype = map.baseLayer.name;
+			}
+			makeStaticCodeSnip();
+		
+		}
+
+		/* function for adding markers by dragging and click on image */
+		function mark(markerImg){
+			markCenter($(markerImg).attr('rel'), $(markerImg).attr('src'));
+		}
+
+		function markCenter(rel,img){
+			id = rel.split('|')[0];
+			width = rel.split('|')[1];
+			height = rel.split('|')[2];
+			offsetx = rel.split('|')[3];
+			offsety = rel.split('|')[4];			 
+			markAtPosition(id,img, $('#map').height()/2, $('#map').width()/2, width, height, offsetx, offsety);
+			 
+		}
+
+		function markAtPosition(id,img, y, x, width, height, offsetx, offsety){	
+			var features = [];
+			lonLat = map.getCenter();
+			center = map.getViewPortPxFromLonLat(map.getCenter());
+			pixel = new OpenLayers.Pixel(center.x + x-$('#map').width()/2, center.y + y-$('#map').height()/2);      
+			lonLat = map.getLonLatFromViewPortPx(pixel);
+
+			vector = new OpenLayers.Feature.Vector(
+						new OpenLayers.Geometry.Point(lonLat.lon, lonLat.lat)
+                    );
+			vector.attributes.img = id;
+			vector.style = {
+				externalGraphic: img,
+				graphicWidth:parseInt(width),
+				graphicHeight:parseInt(height),
+				graphicXOffset:parseInt(offsetx),
+				graphicYOffset:parseInt(offsety),
+				backgroundGraphic: (id.substr(0,5)=='light'?'':"../images/marker_shadow.png"),
+				backgroundXOffset:0,
+				backgroundYOffset:parseInt(offsety)-2,
+				graphicZIndex: 11,
+				backgroundGraphicZIndex: 10,
+				pointRadius: 10
+			}
+			features.push(vector);
+			markers.addFeatures(features);
+			makeStaticCodeSnip();   
+		}
+
+		function makeStaticCodeSnip(){
+			perma = '<img src="';
+			perma += getStaticMapImageUrl();
+			perma += "\" />"
+			$('#perma').val(perma);
+		}
+		
+		function getStaticMapImageUrl(){
+			output = 'staticmap.php?';
+			if(map.maptype != 'mapnik') output += "maptype="+map.maptype+"&";
+			mapCenter = map.getCenter();
+			centerLonLat = mapCenter.transform(map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326"));
+			output += "center="+centerLonLat.lat+","+centerLonLat.lon;
+			output += "&zoom="+map.zoom;
+			output += "&size="+$('#width').val()+"x"+$('#height').val();
+
+			if(markers.features.length){
+				output += "&markers="
+				for(i=0; i<markers.features.length; i++){
+					pos = markers.features[i].geometry.getCentroid();
+					lonLat = pos.transform(map.getProjectionObject(),new OpenLayers.Projection("EPSG:4326"));
+					if(i>0)	output += '|';
+					output += lonLat.y+","+lonLat.x+","+markers.features[i].attributes.img
+				}
+			}
+			return output;
+		}
+
+		function showStaticInNewWindow(){
+			makeStaticCodeSnip();
+			var newWindow = window.open("../"+getStaticMapImageUrl(), '_blank');
+			newWindow.focus();
+			return false;
+		}
+ 
+
+		/* drag + drop */
+		$(document).ready(function(){
+		
+			$('.draggable').draggable(
+			{ helper: 'clone'}
+				
+			);
+		
+			$(".drop").droppable({
+				accept: ".draggable",
+				activeClass: 'droppable-active',
+				hoverClass: 'droppable-hover',
+				drop: function(ev, ui) {
+						mapOffset = $('#map').offset();
+						id = ui.draggable.attr('rel').split('|')[0];
+						width = parseInt(ui.draggable.attr('rel').split('|')[1]);
+						height = parseInt(ui.draggable.attr('rel').split('|')[2]);
+						offsetx = parseInt(ui.draggable.attr('rel').split('|')[3]);
+						offsety = parseInt(ui.draggable.attr('rel').split('|')[4]);
+						markAtPosition(id, ui.draggable.attr('src'), ui.offset.top-mapOffset.top-offsety, ui.offset.left-mapOffset.left-offsetx, width, height, offsetx, offsety);
+				}
+			});
+			initOpenLayers(); 
+			makeStaticCodeSnip();
+		});
+	</script>	
+</head>
+<body>
+	<div id="wrapper">
+		<div id="header">
+		</div>
+		<div id="content" style="background:url(images/wizzard-bg.jpg) 50px 0px no-repeat;">
+	
+			<div class="par-div">
+				<h2 style="font-size:2em; margin-bottom:0">
+					simple map wizzard
+				</h2>
+				<ol>
+					<li>navigate to your area of interest</li>
+					<li>place some markers and drag them to their desired position (optional)</li>
+					<li>copy image tag or press "show map in new window"</li>
+					<li>done! </li>
+				</ol>
+				<hr />
+				<div id="map" class="smallmap drop" style="-moz-user-select: none"></div>
+				<div id="buttons" style="-moz-user-select: none">
+				<h3>makers</h3>
+				<input style="margin-left:0;" type="button" onclick="markers.removeFeatures(markers.features); makeStaticCodeSnip();" value="clear all markers" />
+				<h4 style="margin:0">click or drag to add</h4>
+				<img style="margin-left:0;" class="draggable" src="../images/markers/lightblue1.png" onclick="mark(this);" rel="lightblue1|17|19|-2|-20" />
+				<img class="draggable" src="../images/markers/lightblue2.png" onclick="mark(this);" rel="lightblue2|17|19|0|-19" />
+				<img class="draggable" src="../images/markers/lightblue3.png" onclick="mark(this);" rel="lightblue3|17|19|0|-19" />
+				<img class="draggable" src="../images/markers/lightblue4.png" onclick="mark(this);" rel="lightblue4|17|19|0|-19" />
+				<br />
+				<img class="draggable" style="margin-left:0;" src="../images/markers/ol-marker.png" onclick="mark(this);" rel="ol-marker|21|25|-10|-25" />
+				<img class="draggable" src="../images/markers/ol-marker-gold.png" onclick="mark(this);" rel="ol-marker-gold|21|25|-10|-25" />
+				<img class="draggable" src="../images/markers/ol-marker-blue.png" onclick="mark(this);" rel="ol-marker-blue|21|25|-10|-25" />
+				<img class="draggable" src="../images/markers/ol-marker-green.png" onclick="mark(this);" rel="ol-marker-green|21|25|-10|-25" />
+				<br />
+				<img class="draggable" style="margin-left:0;" src="../images/markers/ltblu-pushpin.png" onclick="mark(this);" rel="ltblu-pushpin|32|32|-11|-33" />
+				<img class="draggable" src="../images/markers/pink-pushpin.png" onclick="mark(this);" rel="pink-pushpin|32|32|-11|-33" />
+				<img class="draggable" src="../images/markers/red-pushpin.png" onclick="mark(this);" rel="red-pushpin|32|32|-11|-33" />
+				<img class="draggable" src="../images/markers/ylw-pushpin.png" onclick="mark(this);" rel="ylw-pushpin|32|32|-11|-33" />
+	<!--			<h3>address</h3>
+				<input type="text" value="Mountain View, CA" /><input type="button" onclick="lookup(this.value);" value="look up" />
+	-->			<h3>map size</h3>
+				<input style="margin-left:0;" type="text" name="width" id="width" value="500" size="5" onchange="makeStaticCodeSnip()" />x
+				<input type="text" name="height" id="height" value="350" size="5"  onchange="makeStaticCodeSnip()" />px
+				<h3>show map</h3>
+				<input style="margin-left:0; background: #eee; padding: 5px 10px" type="button" onclick="showStaticInNewWindow();" value="show map in new window" />
+					</div>
+			</div>
+			<br style="clear: both" />
+			<hr />
+			<div class="par-div">
+	
+				<p>
+					To create a corresponding static map, simply use following &lt;img&gt; tag:
+				</p>
+				<textarea id="perma" name="perma" style="width: 700px" rows="3"></textarea>
+	
+			</div>
+			
+	
+		</div>
+		<div id="footer">
+			<div style="text-align:center;padding:7px;color:#ccc">
+				sponsored by <a href="http://dfacts.de" style="color:#ccc">dFacts Network</a>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
