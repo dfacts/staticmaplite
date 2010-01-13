@@ -1,0 +1,57 @@
+/*
+		CSS based on template of Dandelion wiki engine by Radomir Dopieralski who released this
+		template under the terms of GNU GPL. http://dandelion.sheep.art.pl/
+*/
+
+html{font:96% sans-serif;color:#000;background:#f7f7f7;line-height:1.4;}
+body{color:#333;}
+#wrapper{margin:auto;width:60em;position:relative;}
+#header{padding:0px 0px 7px 0px; height: 1em;}
+#header h1 { float:left; width: 40%; }
+#content{background:white;padding:1em;border:1px solid #e0d78a;outline:0.5em solid #fef4a4;  margin:0.5em 0;padding:0 20px 20px 20px;min-height:20em;}
+h1{margin-top:0px;}
+h1,h2,h3,h4,h5,h6{letter-spacing:0.05em;color:#1474CA;font-weight:normal;}
+h1 a:hover,h2 a:hover,h3 a:hover,h4 a:hover,h5 a:hover,h6 a:hover{text-decoration:none;}
+a{color:#1474CA;text-decoration:none;}
+a:visited{color:#1474CA;}
+a.pending{color:#c174a0;}
+a:hover{text-decoration:underline;}
+a img{border:none;}
+#buttons input, #buttons textarea{font-size:94%;border:1px solid #999;background:#fff;color:#666;outline:0.2em solid #eee;padding:0px;line-height:1.2;margin:0.5em;vertical-align:middle;}
+input {padding: 2px 5px;}
+textarea{display:block;margin:0.5em 0;width:100%;}
+pre, textarea{outline:0.4em solid #eee;padding:0.5em;margin:0.5em;border:1px solid #e0d78a;background:#fef4a4;color:#644e22;}
+hr{height:0;border:none;color:#fff;background:transparent;border-bottom:1px solid #ccc; margin:0.5em 0;}
+#diff {outline:none;border:none;}
+#diff ins{color:green;text-decoration:none;font-weight:bold;}
+#diff del{color:red;text-decoration:line-through;}
+#diff{background:#fff;line-height:1.25;padding:1em;white-space:pre-wrap;word-wrap:break-word;    white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space:-o-pre-wrap;width:97%;}
+hr{margin:10px 0 10px 0;height:0px;overflow:hidden;border:0px;border-top:2px solid #ccc;}
+.error{color:#F25A5A;font-weight:bold;}
+form{display:inline;}
+#contentTextarea{height:44em;}
+#toc{margin:5px 0 5px 10px;padding:6px 5px 7px 0px;float:right;list-style:none;outline:0.4em solid #eee;background:#fef4a4;border:1px solid #e0d78a;}
+#toc ul{list-style:none;padding:3px 0 3px 10px;}
+#toc li{font-size:11px;padding-left:10px;}
+#toc ul li{font-size:10px;}
+#toc ul ul li{font-size:9px;}
+#toc ul ul ul li{font-size:8px;}
+#toc ul ul ul ul li{font-size:7px;}
+.pageVersionsList{letter-spacing:0px;font-variant:normal;font-size:12px;}
+#renameForm{float:left;}
+.clear{clear:both;}
+.tagList{padding:0.2em 0.4em 0.2em 0.4em;margin-top:0.5em;border:1px dashed #e0d78a;background:#fef4a4;color:#644e22;}
+.tagCloud{float:right;width:200px;padding:0.5em;margin:1em;border:1px dashed #e0d78a;background:#fef4a4;color:#644e22;}
+#fileTable{border-collapse:collapse;}
+#fileTable td{border:1px solid #FEF4A4;padding:2px 6px 2px 6px;}
+h2 span.par-edit, h3 span.par-edit, h4 span.par-edit, h5 span.par-edit, h6 span.par-edit {display:none;}
+h2:hover span.par-edit, h3:hover span.par-edit, h4:hover span.par-edit, h5:hover span.par-edit, h6:hover span.par-edit {display:inline;font-size:x-small;}
+.comment-item { border:1px solid #999;color:#666;outline:0.2em solid #eee; }
+.resizeTextareaDiv { margin-top: 5px;}
+a.toolbarTextareaItem { padding-right: 10px; }
+a.external:after { content: "\2197";}
+.smallmap {width: 500px; height: 350px; border:1px solid #ccc;outline:0.25em solid #eee;padding:0.25em;margin:0.25em 0 0.25em 0.5em;background:#fff; float:left;}
+#buttons {float: left; width: 250px; margin-left: 20px;}
+.droppable-active, droppable-hover {border: solid darkblue 1px}
+h3 {margin-bottom:0}
+.draggable {z-index:9999}
