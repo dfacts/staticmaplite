@@ -35,10 +35,12 @@ Class staticMapLite {
 
 	protected $tileSize = 256;
 	protected $tileSrcUrl = array(	'mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-									'osmarenderer' => 'http://c.tah.openstreetmap.org/Tiles/tile/{Z}/{X}/{Y}.png',
+									'osmarenderer' => 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{Z}/{X}/{Y}.png',
 									'cycle' => 'http://c.andy.sandbox.cloudmade.com/tiles/cycle/{Z}/{X}/{Y}.png',
+									'cycle' => 'http://a.tile.opencyclemap.org/cycle/{Z}/{X}/{Y}.png',
+									'piste' => 'http://tiles.openpistemap.org/nocontours/{Z}/{X}/{Y}.png',
 									'piste' => 'http://openpistemap.org/tiles/contours/{Z}/{X}/{Y}.png',
-									'topo' => 'http://topo.geofabrik.de/trails/{Z}/{X}/{Y}.png'
+									'hikebike' => 'http://toolserver.org/tiles/hikebike/{Z}/{X}/{Y}.png'
 
 	);
 	
