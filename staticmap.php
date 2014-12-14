@@ -65,8 +65,12 @@ Class staticMapLite
             'shadow' => '../marker_shadow.png',
             'offsetImage' => '-10,-32',
             'offsetShadow' => '-1,-13'
+        ),
+        // http://svn.openstreetmap.org/sites/other/StaticMap/symbols/0.png
+        'ojw' => array('regex' => '/^bullseye$/',
+            'extension' => '.png',
+            'shadow' => false 
         )
-
     );
 
 
@@ -97,6 +101,16 @@ Class staticMapLite
     {
         global $_GET;
 
+        if (!empty($_GET['show'])) {
+           $this->parseOjwParams();
+        }
+        else {
+           $this->parseLiteParams();
+        }
+    }
+
+    public function parseLiteParams()
+    {
         // get zoom from GET paramter
         $this->zoom = $_GET['zoom'] ? intval($_GET['zoom']) : 0;
         if ($this->zoom > 18) $this->zoom = 18;
@@ -127,6 +141,24 @@ Class staticMapLite
         }
         if ($_GET['maptype']) {
             if (array_key_exists($_GET['maptype'], $this->tileSrcUrl)) $this->maptype = $_GET['maptype'];
+        }
+    }
+
+    public function parseOjwParams()
+    {
+        $this->lat = floatval($_GET['lat']);
+        $this->lon = floatval($_GET['lon']);
+        $this->zoom = intval($_GET['z']);
+
+        $this->width = intval($_GET['w']);
+        $this->height = intval($_GET['h']);
+
+	if (!empty($_GET['mlat0'])) {
+            $markerLat = floatval($_GET['mlat0']);
+            if (!empty($_GET['mlon0'])) {
+                $markerLon = floatval($_GET['mlon0']);
+                $this->markers[] = array('lat' => $markerLat, 'lon' => $markerLon, 'type' => "bullseye");
+            }
         }
     }
 
