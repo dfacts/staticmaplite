@@ -69,7 +69,9 @@ Class staticMapLite
         // http://svn.openstreetmap.org/sites/other/StaticMap/symbols/0.png
         'ojw' => array('regex' => '/^bullseye$/',
             'extension' => '.png',
-            'shadow' => false 
+            'shadow' => false,
+            'offsetImage' => '-20,-20',
+            'offsetShadow' => false
         )
     );
 
