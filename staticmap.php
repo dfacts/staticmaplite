@@ -33,6 +33,7 @@ Class staticMapLite
 
     protected $maxWidth = 1024;
     protected $maxHeight = 1024;
+    protected $maxtiles = 0;
 
     protected $tileSize = 256;
     protected $tileSrcUrl = array('mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
@@ -182,6 +183,10 @@ Class staticMapLite
         $this->offsetY = floor((floor($this->centerY) - $this->centerY) * $this->tileSize);
     }
 
+    public function normalizeTileCoord($position){
+	return ($position < 0) ? $this->maxtiles + $position : $position%$this->maxtiles;
+    }
+
     public function createBaseMap()
     {
         $this->image = imagecreatetruecolor($this->width, $this->height);
@@ -195,10 +200,11 @@ Class staticMapLite
         $this->offsetY += floor($this->height / 2);
         $this->offsetX += floor($startX - floor($this->centerX)) * $this->tileSize;
         $this->offsetY += floor($startY - floor($this->centerY)) * $this->tileSize;
-
+        $this->maxtiles = sqrt(pow(2,(2*$this->zoom)));
+	
         for ($x = $startX; $x <= $endX; $x++) {
             for ($y = $startY; $y <= $endY; $y++) {
-                $url = str_replace(array('{Z}', '{X}', '{Y}'), array($this->zoom, $x, $y), $this->tileSrcUrl[$this->maptype]);
+                $url = str_replace(array('{Z}', '{X}', '{Y}'), array($this->zoom, $this->normalizeTileCoord($x), $y), $this->tileSrcUrl[$this->maptype]);
                 $tileData = $this->fetchTile($url);
                 if ($tileData) {
                     $tileImage = imagecreatefromstring($tileData);
