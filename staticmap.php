@@ -153,7 +153,10 @@ Class staticMapLite
         $this->zoom = intval($_GET['z']);
 
         $this->width = intval($_GET['w']);
+        if ($this->width > $this->maxWidth) $this->width = $this->maxWidth;
         $this->height = intval($_GET['h']);
+        if ($this->height > $this->maxHeight) $this->height = $this->maxHeight;
+        
 
 	if (!empty($_GET['mlat0'])) {
             $markerLat = floatval($_GET['mlat0']);
