@@ -122,7 +122,7 @@ Class staticMapLite
         $this->lat = floatval($this->lat);
         $this->lon = floatval($this->lon);
 
-        // get zoom from GET paramter
+        // get size from GET paramter
         if ($_GET['size']) {
             list($this->width, $this->height) = explode('x', $_GET['size']);
             $this->width = intval($this->width);
