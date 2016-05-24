@@ -33,6 +33,7 @@ Class staticMapLite
 
     protected $maxWidth = 1024;
     protected $maxHeight = 1024;
+    protected $maxtiles = 0;
 
     protected $tileSize = 256;
     protected $tileSrcUrl = array('mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
@@ -185,6 +186,10 @@ Class staticMapLite
         $this->offsetY = floor((floor($this->centerY) - $this->centerY) * $this->tileSize);
     }
 
+    public function normalizeTileCoord($position){
+	return ($position < 0) ? $this->maxtiles + $position : $position%$this->maxtiles;
+    }
+
     public function createBaseMap()
     {
         $this->image = imagecreatetruecolor($this->width, $this->height);
@@ -198,10 +203,11 @@ Class staticMapLite
         $this->offsetY += floor($this->height / 2);
         $this->offsetX += floor($startX - floor($this->centerX)) * $this->tileSize;
         $this->offsetY += floor($startY - floor($this->centerY)) * $this->tileSize;
-
+        $this->maxtiles = sqrt(pow(2,(2*$this->zoom)));
+	
         for ($x = $startX; $x <= $endX; $x++) {
             for ($y = $startY; $y <= $endY; $y++) {
-                $url = str_replace(array('{Z}', '{X}', '{Y}'), array($this->zoom, $x, $y), $this->tileSrcUrl[$this->maptype]);
+                $url = str_replace(array('{Z}', '{X}', '{Y}'), array($this->zoom, $this->normalizeTileCoord($x), $y), $this->tileSrcUrl[$this->maptype]);
                 $tileData = $this->fetchTile($url);
                 if ($tileData) {
                     $tileImage = imagecreatefromstring($tileData);
@@ -215,6 +221,8 @@ Class staticMapLite
                 imagecopy($this->image, $tileImage, $destX, $destY, 0, 0, $this->tileSize, $this->tileSize);
             }
         }
+        $this->mkdir_recursive(dirname($this->mapCacheIDToFilename()), 0777);
+        imagepng($this->image, $this->mapCacheIDToFilename(), 9);
     }
 
 
@@ -307,7 +315,7 @@ Class staticMapLite
 
     public function serializeParams()
     {
-        return join("&", array($this->zoom, $this->lat, $this->lon, $this->width, $this->height, serialize($this->markers), $this->maptype));
+        return join("&", array($this->zoom, $this->lat, $this->lon, $this->width, $this->height, $this->maptype));
     }
 
     public function mapCacheIDToFilename()
@@ -367,7 +375,15 @@ Class staticMapLite
     public function makeMap()
     {
         $this->initCoords();
-        $this->createBaseMap();
+        if ($this->useMapCache){
+            if($this->checkMapCache()){
+                $this->image = imagecreatefrompng($this->mapCacheIDToFilename());
+            } else{
+                $this->createBaseMap();
+            }
+        } else{
+            $this->createBaseMap();
+        }
         if (count($this->markers)) $this->placeMarkers();
         if ($this->osmLogo) $this->copyrightNotice();
     }
@@ -375,32 +391,9 @@ Class staticMapLite
     public function showMap()
     {
         $this->parseParams();
-        if ($this->useMapCache) {
-            // use map cache, so check cache for map
-            if (!$this->checkMapCache()) {
-                // map is not in cache, needs to be build
-                $this->makeMap();
-                $this->mkdir_recursive(dirname($this->mapCacheIDToFilename()), 0777);
-                imagepng($this->image, $this->mapCacheIDToFilename(), 9);
-                $this->sendHeader();
-                if (file_exists($this->mapCacheIDToFilename())) {
-                    return file_get_contents($this->mapCacheIDToFilename());
-                } else {
-                    return imagepng($this->image);
-                }
-            } else {
-                // map is in cache
-                $this->sendHeader();
-                return file_get_contents($this->mapCacheIDToFilename());
-            }
-
-        } else {
-            // no cache, make map, send headers and deliver png
-            $this->makeMap();
-            $this->sendHeader();
-            return imagepng($this->image);
-
-        }
+        $this->makeMap();
+        $this->sendHeader();
+        return imagepng($this->image);
     }
 
 }
