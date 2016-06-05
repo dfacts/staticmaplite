@@ -115,7 +115,7 @@ Class staticMapLite
     {
         // get zoom from GET paramter
         $this->zoom = $_GET['zoom'] ? intval($_GET['zoom']) : 0;
-        if ($this->zoom > 18) $this->zoom = 18;
+        if ($this->zoom > 19) $this->zoom = 19;
 
         // get lat and lon from GET paramter
         list($this->lat, $this->lon) = explode(',', $_GET['center']);
