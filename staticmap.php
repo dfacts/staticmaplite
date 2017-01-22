@@ -37,9 +37,13 @@ Class staticMapLite
     protected $tileSize = 256;
     protected $tileSrcUrl = array(
 	'standard' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-	'mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png', /* deprecated alias */
-        'osmarenderer' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png', /* mapped value from discontinued tile server */
         'cycle' => 'http://a.tile.opencyclemap.org/cycle/{Z}/{X}/{Y}.png',
+    );
+
+    // Deprecated map_type values still supported as aliases
+    protected $mapTypeAliases = array(
+	'mapnik' => 'standard',
+	'osmarender' => 'standard'
     );
 
     protected $tileDefaultSrc = 'standard';
@@ -144,7 +148,9 @@ Class staticMapLite
 
         }
         if ($_GET['maptype']) {
-            if (array_key_exists($_GET['maptype'], $this->tileSrcUrl)) $this->maptype = $_GET['maptype'];
+            $mapTypeParam = $_GET['maptype'];
+            if (array_key_exists($mapTypeParam, $this->mapTypeAliases)) $mapTypeParam = $this->mapTypeAliases[$mapTypeParam];
+            if (array_key_exists($mapTypeParam, $this->tileSrcUrl)) $this->maptype = $mapTypeParam;
         }
     }
 
