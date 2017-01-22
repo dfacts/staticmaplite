@@ -21,7 +21,7 @@
  *
  * USAGE:
  *
- *  staticmap.php?center=40.714728,-73.998672&zoom=14&size=512x512&maptype=mapnik&markers=40.702147,-74.015794,blues|40.711614,-74.012318,greeng|40.718217,-73.998284,redc
+ *  staticmap.php?center=40.714728,-73.998672&zoom=14&size=512x512&maptype=standrd&markers=40.702147,-74.015794,blues|40.711614,-74.012318,greeng|40.718217,-73.998284,redc
  *
  */
 
@@ -35,12 +35,18 @@ Class staticMapLite
     protected $maxHeight = 1024;
 
     protected $tileSize = 256;
-    protected $tileSrcUrl = array('mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-        'osmarenderer' => 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{Z}/{X}/{Y}.png',
+    protected $tileSrcUrl = array(
+	'standard' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
         'cycle' => 'http://a.tile.opencyclemap.org/cycle/{Z}/{X}/{Y}.png',
     );
 
-    protected $tileDefaultSrc = 'mapnik';
+    // Deprecated map_type values still supported as aliases
+    protected $mapTypeAliases = array(
+	'mapnik' => 'standard',
+	'osmarender' => 'standard'
+    );
+
+    protected $tileDefaultSrc = 'standard';
     protected $markerBaseDir = 'images/markers';
     protected $osmLogo = 'images/osm_logo.png';
 
@@ -142,7 +148,9 @@ Class staticMapLite
 
         }
         if ($_GET['maptype']) {
-            if (array_key_exists($_GET['maptype'], $this->tileSrcUrl)) $this->maptype = $_GET['maptype'];
+            $mapTypeParam = $_GET['maptype'];
+            if (array_key_exists($mapTypeParam, $this->mapTypeAliases)) $mapTypeParam = $this->mapTypeAliases[$mapTypeParam];
+            if (array_key_exists($mapTypeParam, $this->tileSrcUrl)) $this->maptype = $mapTypeParam;
         }
     }
 
