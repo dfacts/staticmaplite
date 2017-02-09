@@ -28,7 +28,7 @@
 error_reporting(0);
 ini_set('display_errors', 'off');
 
-Class staticMapLite
+class staticMapLite
 {
 
     protected $maxWidth = 1024;
