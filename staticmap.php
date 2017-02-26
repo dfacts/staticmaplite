@@ -28,16 +28,33 @@
 error_reporting(0);
 ini_set('display_errors', 'off');
 
-Class staticMapLite
+class staticMapLite
 {
 
     protected $maxWidth = 1024;
     protected $maxHeight = 1024;
 
     protected $tileSize = 256;
-    protected $tileSrcUrl = array('mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-        'osmarenderer' => 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{Z}/{X}/{Y}.png',
-        'cycle' => 'http://a.tile.opencyclemap.org/cycle/{Z}/{X}/{Y}.png',
+
+    protected $tileSrcUrl = array(
+        'mapnik'        => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
+        'osm'               => 'http://tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
+        'osmarenderer'      => 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{Z}/{X}/{Y}.png',
+        'cycle'             => 'http://a.tile.opencyclemap.org/cycle/{Z}/{X}/{Y}.png',
+        'stamen-toner'      => 'http://a.tile.stamen.com/toner-hybrid/{Z}/{X}/{Y}.png',
+        'top'               => 'http://opentopomap.org/{Z}/{X}/{Y}.png',
+        // OSM Roads layer
+        'heidelberg-roads'  => 'http://korona.geog.uni-heidelberg.de/tiles/roads/x={X}&y={Y}&z={Z}',
+        // OSM Semitransparent layer
+        'heidelberg-hybrid' => 'http://korona.geog.uni-heidelberg.de/tiles/hybrid/x={X}&y={Y}&z={Z}',
+        // ASTER GDEM & SRTM Hillshade layer
+        'heidelberg-asterh' => 'http://korona.geog.uni-heidelberg.de/tiles/asterh/x={X}&y={Y}&z={Z}',
+        // ASTER GDEM contour lines layer
+        'heidelberg-asterc' => 'http://korona.geog.uni-heidelberg.de/tiles/asterc/x={X}&y={Y}&z={Z}',
+        // OSM Administrative Boundaries layer
+        'heidelberg-adminb' => 'http://korona.geog.uni-heidelberg.de/tiles/adminb/x={X}&y={Y}&z={Z}',
+        // OSM Roads Grayscale Layer
+        'heidelberg-roadsg' => 'http://korona.geog.uni-heidelberg.de/tiles/roadsg/x={X}&y={Y}&z={Z}',
     );
 
     protected $tileDefaultSrc = 'mapnik';
