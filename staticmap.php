@@ -38,6 +38,7 @@ Class staticMapLite
     protected $tileSrcUrl = array('mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
         'osmarenderer' => 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{Z}/{X}/{Y}.png',
         'cycle' => 'http://a.tile.opencyclemap.org/cycle/{Z}/{X}/{Y}.png',
+        'wikimedia-intl' => 'https://maps.wikimedia.org/osm-intl/{Z}/{X}/{Y}.png',
     );
 
     protected $tileDefaultSrc = 'mapnik';
