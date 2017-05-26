@@ -267,11 +267,9 @@ class staticMapLite
         foreach ($this->polylines as $polyline) {
             // set some local variables
             $polylineString = $polyline['polyline'];
-            $colorRed = $polyline['Red'];
+            $colorRed = $polyline['colorRed'];
             $colorGreen = $polyline['colorGreen'];
             $colorBlue = $polyline['colorBlue'];
-
-            // clear variables from previous loops
 
             $polylineList = \Polyline::decode($polylineString);
 
@@ -281,6 +279,8 @@ class staticMapLite
             $destinationLongitude = null;
 
             $color = imagecolorallocate($this->image, $colorRed, $colorGreen, $colorBlue);
+            imagesetthickness($this->image, 3);
+            //imageantialias($this->image, true);
 
             while (!empty($polylineList)) {
                 if (!$sourceLatitude) {
