@@ -6,15 +6,17 @@ class CachedTileResolver extends TileResolver
 {
     protected $tileCacheBaseDir = '../cache/tiles';
 
-    public function fetch(string $url): string
+    public function fetch(int $zoom, int $x, int $y): string
     {
+        $url = $this->resolve($zoom, $x, $y);
+
         $cachedTile = $this->checkTileCache($url);
 
         if ($cachedTile) {
             return $cachedTile;
         }
 
-        $tile = parent::fetch($url);
+        $tile = parent::fetch($zoom, $x, $y);
 
         if ($tile) {
             $this->writeTileToCache($url, $tile);

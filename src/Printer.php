@@ -13,11 +13,12 @@ class Printer
     protected $tileResolver = null;
 
     protected $tileSize = 256;
-    protected $tileSrcUrl = array('mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-        'osmarenderer' => 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{Z}/{X}/{Y}.png',
-        'cycle' => 'http://a.tile.opencyclemap.org/cycle/{Z}/{X}/{Y}.png',
-        'wikimedia-intl' => 'https://maps.wikimedia.org/osm-intl/{Z}/{X}/{Y}.png',
-    );
+    protected $tileSrcUrl = [
+        'mapnik' => 'http://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'osmarenderer' => 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
+        'cycle' => 'http://a.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png',
+        'wikimedia-intl' => 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
+    ];
 
     protected $tileDefaultSrc = 'mapnik';
     protected $markerBaseDir = '../images/markers';
@@ -80,6 +81,7 @@ class Printer
         $this->maptype = $this->tileDefaultSrc;
 
         $this->tileResolver = new CachedTileResolver();
+        $this->tileResolver->setTileLayerUrl($this->tileSrcUrl[$this->maptype]);
     }
 
     public function addMarker(Marker $marker): Printer
@@ -137,6 +139,8 @@ class Printer
     {
         $this->maptype = $mapType;
 
+        $this->tileResolver->setTileLayerUrl($this->tileSrcUrl[$this->maptype]);
+
         return $this;
     }
 
@@ -165,8 +169,8 @@ class Printer
 
         for ($x = $startX; $x <= $endX; $x++) {
             for ($y = $startY; $y <= $endY; $y++) {
-                $url = str_replace(array('{Z}', '{X}', '{Y}'), array($this->zoom, $x, $y), $this->tileSrcUrl[$this->maptype]);
-                $tileData = $this->fetchTile($url);
+                $tileData = $this->tileResolver->fetch($this->zoom, $x, $y);
+
                 if ($tileData) {
                     $tileImage = imagecreatefromstring($tileData);
                 } else {
@@ -307,11 +311,6 @@ class Printer
             $this->mapCacheFile = $this->mapCacheBaseDir . "/" . $this->maptype . "/" . $this->zoom . "/cache_" . substr($this->mapCacheID, 0, 2) . "/" . substr($this->mapCacheID, 2, 2) . "/" . substr($this->mapCacheID, 4);
         }
         return $this->mapCacheFile . "." . $this->mapCacheExtension;
-    }
-
-    public function fetchTile($url)
-    {
-        return $this->tileResolver->fetch($url);
     }
 
     public function copyrightNotice()
