@@ -2,7 +2,7 @@
 
 namespace StaticMapLite;
 
-class staticMapLite
+class StaticMapLite
 {
     protected $maxWidth = 1024;
     protected $maxHeight = 1024;
