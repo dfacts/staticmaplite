@@ -19,6 +19,7 @@
     },
     "minimum-stability": "stable",
     "require": {
-        "emcconville/google-map-polyline-encoding-tool": "^1.3"
+        "emcconville/google-map-polyline-encoding-tool": "^1.3",
+        "curl/curl": "^1.6"
     }
 }
