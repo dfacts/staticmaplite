@@ -4,6 +4,7 @@ namespace StaticMapLite;
 
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\Element\Marker\Marker;
+use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\TileResolver\CachedTileResolver;
 
 class Printer
@@ -34,29 +35,29 @@ class Printer
             'extension' => '.png',
             'shadow' => false,
             'offsetImage' => '0,-19',
-            'offsetShadow' => false
+            'offsetShadow' => false,
         ),
         // openlayers std markers
         'ol-marker' => array('regex' => '/^ol-marker(|-blue|-gold|-green)+$/',
             'extension' => '.png',
             'shadow' => '../marker_shadow.png',
             'offsetImage' => '-10,-25',
-            'offsetShadow' => '-1,-13'
+            'offsetShadow' => '-1,-13',
         ),
         // taken from http://www.visual-case.it/cgi-bin/vc/GMapsIcons.pl
         'ylw' => array('regex' => '/^(pink|purple|red|ltblu|ylw)-pushpin$/',
             'extension' => '.png',
             'shadow' => '../marker_shadow.png',
             'offsetImage' => '-10,-32',
-            'offsetShadow' => '-1,-13'
+            'offsetShadow' => '-1,-13',
         ),
         // http://svn.openstreetmap.org/sites/other/StaticMap/symbols/0.png
         'ojw' => array('regex' => '/^bullseye$/',
             'extension' => '.png',
             'shadow' => false,
             'offsetImage' => '-20,-20',
-            'offsetShadow' => false
-        )
+            'offsetShadow' => false,
+        ),
     );
 
 
@@ -95,11 +96,9 @@ class Printer
         return $this;
     }
 
-    public function addPolyline(string $polylineString, int $colorRed, int $colorGreen, int $colorBlue): Printer
+    public function addPolyline(Polyline $polyline): Printer
     {
-        $polyline = ['polyline' => $polylineString, 'colorRed' => $colorRed, 'colorGreen' => $colorGreen, 'colorBlue' => $colorBlue];
-
-        array_push($this->polylines, $polyline);
+        $this->polylines[] = $polyline;
 
         return $this;
     }
@@ -253,22 +252,16 @@ class Printer
 
     public function placePolylines()
     {
-        // loop thru marker array
+        /** @var Polyline $polyline */
         foreach ($this->polylines as $polyline) {
-            // set some local variables
-            $polylineString = $polyline['polyline'];
-            $colorRed = $polyline['colorRed'];
-            $colorGreen = $polyline['colorGreen'];
-            $colorBlue = $polyline['colorBlue'];
-
-            $polylineList = \Polyline::decode($polylineString);
+            $polylineList = \Polyline::decode($polyline->getPolyline());
 
             $sourceLatitude = null;
             $sourceLongitude = null;
             $destinationLatitude = null;
             $destinationLongitude = null;
 
-            $color = imagecolorallocate($this->canvas->getImage(), $colorRed, $colorGreen, $colorBlue);
+            $color = imagecolorallocate($this->canvas->getImage(), $polyline->getColorRed(), $polyline->getColorGreen(), $polyline->getColorBlue());
             imagesetthickness($this->image, 3);
             //imageantialias($this->image, true);
 
