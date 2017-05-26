@@ -2,18 +2,23 @@
 
 namespace StaticMapLite\TileResolver;
 
+use Curl\Curl;
 
 class TileResolver
 {
+    protected $tileLayer = null;
+
+    protected $curl = null;
+
+    public function __construct()
+    {
+        $this->curl = new Curl();
+    }
+
     public function fetch(string $url): string
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0');
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $tile = curl_exec($ch);
-        curl_close($ch);
+        $this->curl->get($url);
 
-        return $tile;
+        return $this->curl->response;
     }
 }
