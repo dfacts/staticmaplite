@@ -27,7 +27,7 @@
 
 require_once '../vendor/autoload.php';
 
-use StaticMapLite\StaticMapLite;
+use StaticMapLite\Printer;
 
-$map = new StaticMapLite();
-print $map->showMap();
+$printer = new Printer();
+print $printer->showMap();

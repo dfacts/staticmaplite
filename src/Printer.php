@@ -2,7 +2,7 @@
 
 namespace StaticMapLite;
 
-class StaticMapLite
+class Printer
 {
     protected $maxWidth = 1024;
     protected $maxHeight = 1024;
