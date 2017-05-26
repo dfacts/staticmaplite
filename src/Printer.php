@@ -2,6 +2,7 @@
 
 namespace StaticMapLite;
 
+use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\TileResolver\CachedTileResolver;
 
@@ -11,6 +12,9 @@ class Printer
     protected $maxHeight = 1024;
 
     protected $tileResolver = null;
+
+    /** @var Canvas $canvas */
+    protected $canvas = null;
 
     protected $tileSize = 256;
     protected $tileSrcUrl = [
@@ -155,7 +159,8 @@ class Printer
 
     public function createBaseMap()
     {
-        $this->image = imagecreatetruecolor($this->width, $this->height);
+        $this->canvas = new Canvas($this->width, $this->height);
+
         $startX = floor($this->centerX - ($this->width / $this->tileSize) / 2);
         $startY = floor($this->centerY - ($this->height / $this->tileSize) / 2);
         $endX = ceil($this->centerX + ($this->width / $this->tileSize) / 2);
@@ -180,7 +185,7 @@ class Printer
                 }
                 $destX = ($x - $startX) * $this->tileSize + $this->offsetX;
                 $destY = ($y - $startY) * $this->tileSize + $this->offsetY;
-                imagecopy($this->image, $tileImage, $destX, $destY, 0, 0, $this->tileSize, $this->tileSize);
+                imagecopy($this->canvas->getImage(), $tileImage, $destX, $destY, 0, 0, $this->tileSize, $this->tileSize);
             }
         }
     }
@@ -236,12 +241,12 @@ class Printer
 
             // copy shadow on basemap
             if ($markerShadow && $markerShadowImg) {
-                imagecopy($this->image, $markerShadowImg, $destX + intval($markerShadowOffsetX), $destY + intval($markerShadowOffsetY),
+                imagecopy($this->canvas->getImage(), $markerShadowImg, $destX + intval($markerShadowOffsetX), $destY + intval($markerShadowOffsetY),
                     0, 0, imagesx($markerShadowImg), imagesy($markerShadowImg));
             }
 
             // copy marker on basemap above shadow
-            imagecopy($this->image, $markerImg, $destX + intval($markerImageOffsetX), $destY + intval($markerImageOffsetY),
+            imagecopy($this->canvas->getImage(), $markerImg, $destX + intval($markerImageOffsetX), $destY + intval($markerImageOffsetY),
                 0, 0, imagesx($markerImg), imagesy($markerImg));
         };
     }
@@ -263,7 +268,7 @@ class Printer
             $destinationLatitude = null;
             $destinationLongitude = null;
 
-            $color = imagecolorallocate($this->image, $colorRed, $colorGreen, $colorBlue);
+            $color = imagecolorallocate($this->canvas->getImage(), $colorRed, $colorGreen, $colorBlue);
             imagesetthickness($this->image, 3);
             //imageantialias($this->image, true);
 
@@ -285,7 +290,7 @@ class Printer
                 $destinationX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($destinationLongitude, $this->zoom)));
                 $destinationY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($destinationLatitude, $this->zoom)));
 
-                imageline($this->image , $sourceX, $sourceY , $destinationX, $destinationY, $color);
+                imageline($this->canvas->getImage() , $sourceX, $sourceY , $destinationX, $destinationY, $color);
 
                 $sourceLatitude = $destinationLatitude;
                 $sourceLongitude = $destinationLongitude;
@@ -316,8 +321,7 @@ class Printer
     public function copyrightNotice()
     {
         $logoImg = imagecreatefrompng($this->osmLogo);
-        imagecopy($this->image, $logoImg, imagesx($this->image) - imagesx($logoImg), imagesy($this->image) - imagesy($logoImg), 0, 0, imagesx($logoImg), imagesy($logoImg));
-
+        imagecopy($this->canvas->getImage(), $logoImg, imagesx($this->image) - imagesx($logoImg), imagesy($this->image) - imagesy($logoImg), 0, 0, imagesx($logoImg), imagesy($logoImg));
     }
 
     public function sendHeader()
@@ -346,12 +350,12 @@ class Printer
                 // map is not in cache, needs to be build
                 $this->makeMap();
                 $this->mkdir_recursive(dirname($this->mapCacheIDToFilename()), 0777);
-                imagepng($this->image, $this->mapCacheIDToFilename(), 9);
+                imagepng($this->canvas->getImage(), $this->mapCacheIDToFilename(), 9);
                 $this->sendHeader();
                 if (file_exists($this->mapCacheIDToFilename())) {
                     return file_get_contents($this->mapCacheIDToFilename());
                 } else {
-                    return imagepng($this->image);
+                    return imagepng($this->canvas->getImage());
                 }
             } else {
                 // map is in cache
@@ -363,7 +367,7 @@ class Printer
             // no cache, make map, send headers and deliver png
             $this->makeMap();
             $this->sendHeader();
-            return imagepng($this->image);
+            return imagepng($this->canvas->getImage());
 
         }
     }
