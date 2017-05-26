@@ -135,20 +135,11 @@ class Printer
         return $this;
     }
 
-    public function lonToTile($long, $zoom)
-    {
-        return (($long + 180) / 360) * pow(2, $zoom);
-    }
-
-    public function latToTile($lat, $zoom)
-    {
-        return (1 - log(tan($lat * pi() / 180) + 1 / cos($lat * pi() / 180)) / pi()) / 2 * pow(2, $zoom);
-    }
-
     public function initCoords()
     {
-        $this->centerX = $this->lonToTile($this->lon, $this->zoom);
-        $this->centerY = $this->latToTile($this->lat, $this->zoom);
+        $this->centerX = Util::lonToTile($this->lon, $this->zoom);
+        $this->centerY = Util::latToTile($this->lat, $this->zoom);
+
         $this->offsetX = floor((floor($this->centerX) - $this->centerX) * $this->tileSize);
         $this->offsetY = floor((floor($this->centerY) - $this->centerY) * $this->tileSize);
     }
@@ -236,8 +227,8 @@ class Printer
             }
 
             // calc position
-            $destX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - $this->lonToTile($markerLon, $this->zoom)));
-            $destY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - $this->latToTile($markerLat, $this->zoom)));
+            $destX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($markerLon, $this->zoom)));
+            $destY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($markerLat, $this->zoom)));
 
             // copy shadow on basemap
             if ($markerShadow && $markerShadowImg) {
@@ -282,14 +273,14 @@ class Printer
                     $sourceLongitude = array_shift($polylineList);
                 }
 
-                $sourceX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - $this->lonToTile($sourceLongitude, $this->zoom)));
-                $sourceY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - $this->latToTile($sourceLatitude, $this->zoom)));
+                $sourceX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($sourceLongitude, $this->zoom)));
+                $sourceY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($sourceLatitude, $this->zoom)));
 
                 $destinationLatitude = array_shift($polylineList);
                 $destinationLongitude = array_shift($polylineList);
 
-                $destinationX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - $this->lonToTile($destinationLongitude, $this->zoom)));
-                $destinationY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - $this->latToTile($destinationLatitude, $this->zoom)));
+                $destinationX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($destinationLongitude, $this->zoom)));
+                $destinationY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($destinationLatitude, $this->zoom)));
 
                 imageline($this->image , $sourceX, $sourceY , $destinationX, $destinationY, $color);
 
