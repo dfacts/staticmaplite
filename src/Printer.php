@@ -2,9 +2,8 @@
 
 namespace StaticMapLite;
 
-use StaticMapLite\Element\Marker;
+use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\TileResolver\CachedTileResolver;
-use StaticMapLite\TileResolver\TileResolver;
 
 class Printer
 {

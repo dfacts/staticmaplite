@@ -27,7 +27,7 @@
 
 require_once '../vendor/autoload.php';
 
-use StaticMapLite\Element\Marker;
+use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\Printer;
 
 $printer = new Printer();

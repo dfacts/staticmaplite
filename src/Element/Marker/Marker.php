@@ -1,6 +1,6 @@
 <?php
 
-namespace StaticMapLite\Element;
+namespace StaticMapLite\Element\Marker;
 
 class Marker
 {
