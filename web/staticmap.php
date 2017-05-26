@@ -27,6 +27,7 @@
 
 require_once '../vendor/autoload.php';
 
+use StaticMapLite\Element\Marker;
 use StaticMapLite\Printer;
 
 $printer = new Printer();
@@ -49,7 +50,9 @@ if ($markers) {
     foreach ($markerList as $marker) {
         list($markerLatitude, $markerLongitude, $markerType) = explode(',', $marker);
 
-        $printer->addMarker($markerType, $markerLatitude, $markerLongitude);
+        $marker = new Marker($markerType, $markerLatitude, $markerLongitude);
+
+        $printer->addMarker($marker);
     }
 }
 

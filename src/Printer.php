@@ -2,6 +2,7 @@
 
 namespace StaticMapLite;
 
+use StaticMapLite\Element\Marker;
 use StaticMapLite\TileResolver\CachedTileResolver;
 use StaticMapLite\TileResolver\TileResolver;
 
@@ -82,11 +83,9 @@ class Printer
         $this->tileResolver = new CachedTileResolver();
     }
 
-    public function addMarker(string $markerType, float $latitude, float $longitude): Printer
+    public function addMarker(Marker $marker): Printer
     {
-        $marker = ['lat' => $latitude, 'lon' => $longitude, 'type' => $markerType];
-
-        array_push($this->markers, $marker);
+        $this->markers[] = $marker;
 
         return $this;
     }
@@ -186,21 +185,15 @@ class Printer
 
     public function placeMarkers()
     {
-        // loop thru marker array
         foreach ($this->markers as $marker) {
-            // set some local variables
-            $markerLat = $marker['lat'];
-            $markerLon = $marker['lon'];
-            $markerType = $marker['type'];
-            // clear variables from previous loops
             $markerFilename = '';
             $markerShadow = '';
             $matches = false;
 
             // check for marker type, get settings from markerPrototypes
-            if ($markerType) {
+            if ($marker->getMarkerType()) {
                 foreach ($this->markerPrototypes as $markerPrototype) {
-                    if (preg_match($markerPrototype['regex'], $markerType, $matches)) {
+                    if (preg_match($markerPrototype['regex'], $marker->getMarkerType(), $matches)) {
                         $markerFilename = $matches[0] . $markerPrototype['extension'];
                         if ($markerPrototype['offsetImage']) {
                             list($markerImageOffsetX, $markerImageOffsetY) = explode(",", $markerPrototype['offsetImage']);
@@ -235,8 +228,8 @@ class Printer
             }
 
             // calc position
-            $destX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($markerLon, $this->zoom)));
-            $destY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($markerLat, $this->zoom)));
+            $destX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($marker->getLongitude(), $this->zoom)));
+            $destY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($marker->getLatitude(), $this->zoom)));
 
             // copy shadow on basemap
             if ($markerShadow && $markerShadowImg) {
