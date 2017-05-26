@@ -52,13 +52,13 @@ class staticMapLite
     protected $useTileCache = true;
     protected $tileCacheBaseDir = '../cache/tiles';
 
-    protected $useMapCache = true;
+    protected $useMapCache = false;
     protected $mapCacheBaseDir = '../cache/maps';
     protected $mapCacheID = '';
     protected $mapCacheFile = '';
     protected $mapCacheExtension = 'png';
 
-    protected $zoom, $lat, $lon, $width, $height, $markers, $image, $maptype;
+    protected $zoom, $lat, $lon, $width, $height, $markers, $polylines, $image, $maptype;
     protected $centerX, $centerY, $offsetX, $offsetY;
 
     public function __construct()
@@ -113,6 +113,10 @@ class staticMapLite
                 $this->markers[] = array('lat' => $markerLat, 'lon' => $markerLon, 'type' => $markerType);
             }
 
+        }
+        if (!empty($_GET['polylines'])) {
+            list($polylineString, $colorRed, $colorGreen, $colorBlue) = explode(',', $_GET['polylines']);
+            $this->polylines[] = array('polyline' => $polylineString, 'colorRed' => $colorRed, 'colorGreen' => $colorGreen, 'colorBlue' => $colorBlue);
         }
         if ($_GET['maptype']) {
             if (array_key_exists($_GET['maptype'], $this->tileSrcUrl)) $this->maptype = $_GET['maptype'];
@@ -257,6 +261,52 @@ class staticMapLite
         };
     }
 
+    public function placePolylines()
+    {
+        // loop thru marker array
+        foreach ($this->polylines as $polyline) {
+            // set some local variables
+            $polylineString = $polyline['polyline'];
+            $colorRed = $polyline['colorRed'];
+            $colorGreen = $polyline['colorGreen'];
+            $colorBlue = $polyline['colorBlue'];
+
+            $polylineList = \Polyline::decode($polylineString);
+
+            $sourceLatitude = null;
+            $sourceLongitude = null;
+            $destinationLatitude = null;
+            $destinationLongitude = null;
+
+            $color = imagecolorallocate($this->image, $colorRed, $colorGreen, $colorBlue);
+            imagesetthickness($this->image, 3);
+            //imageantialias($this->image, true);
+
+            while (!empty($polylineList)) {
+                if (!$sourceLatitude) {
+                    $sourceLatitude = array_shift($polylineList);
+                }
+
+                if (!$sourceLongitude) {
+                    $sourceLongitude = array_shift($polylineList);
+                }
+
+                $sourceX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - $this->lonToTile($sourceLongitude, $this->zoom)));
+                $sourceY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - $this->latToTile($sourceLatitude, $this->zoom)));
+
+                $destinationLatitude = array_shift($polylineList);
+                $destinationLongitude = array_shift($polylineList);
+
+                $destinationX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - $this->lonToTile($destinationLongitude, $this->zoom)));
+                $destinationY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - $this->latToTile($destinationLatitude, $this->zoom)));
+
+                imageline($this->image , $sourceX, $sourceY , $destinationX, $destinationY, $color);
+
+                $sourceLatitude = $destinationLatitude;
+                $sourceLongitude = $destinationLongitude;
+            }
+        }
+    }
 
     public function tileUrlToFilename($url)
     {
@@ -342,6 +392,7 @@ class staticMapLite
         $this->initCoords();
         $this->createBaseMap();
         if (count($this->markers)) $this->placeMarkers();
+        if (count($this->polylines)) $this->placePolylines();
         if ($this->osmLogo) $this->copyrightNotice();
     }
 
