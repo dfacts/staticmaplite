@@ -2,10 +2,14 @@
 
 namespace StaticMapLite;
 
+use StaticMapLite\TileResolver\TileResolver;
+
 class Printer
 {
     protected $maxWidth = 1024;
     protected $maxHeight = 1024;
+
+    protected $tileResolver = null;
 
     protected $tileSize = 256;
     protected $tileSrcUrl = array('mapnik' => 'http://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
@@ -73,6 +77,8 @@ class Printer
         $this->width = 500;
         $this->height = 350;
         $this->maptype = $this->tileDefaultSrc;
+
+        $this->tileResolver = new TileResolver();
     }
 
     public function addMarker(string $markerType, float $latitude, float $longitude): Printer
@@ -339,18 +345,7 @@ class Printer
 
     public function fetchTile($url)
     {
-        if ($this->useTileCache && ($cached = $this->checkTileCache($url))) return $cached;
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0");
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $tile = curl_exec($ch);
-        curl_close($ch);
-        if ($tile && $this->useTileCache) {
-            $this->writeTileToCache($url, $tile);
-        }
-        return $tile;
-
+        return $this->tileResolver->fetch($url);
     }
 
     public function copyrightNotice()
