@@ -58,7 +58,7 @@ class staticMapLite
     protected $mapCacheFile = '';
     protected $mapCacheExtension = 'png';
 
-    protected $zoom, $lat, $lon, $width, $height, $markers, $image, $maptype;
+    protected $zoom, $lat, $lon, $width, $height, $markers, $polylines, $image, $maptype;
     protected $centerX, $centerY, $offsetX, $offsetY;
 
     public function __construct()
@@ -111,6 +111,14 @@ class staticMapLite
                 $markerLon = floatval($markerLon);
                 $markerType = basename($markerType);
                 $this->markers[] = array('lat' => $markerLat, 'lon' => $markerLon, 'type' => $markerType);
+            }
+
+        }
+        if (!empty($_GET['polylines'])) {
+            $polylines = explode('|', $_GET['polylines']);
+            foreach ($polylines as $polyline) {
+                list($polylineString, $colorRed, $colorGreen, $colorBlue) = explode(',', $polyline);
+                $this->polylines[] = array('polyline' => $polylineString, 'colorRed' => $colorRed, 'colorGreen' => $colorGreen, 'colorBlue' => $colorBlue);
             }
 
         }
@@ -256,6 +264,8 @@ class staticMapLite
 
         };
     }
+
+    pu
 
 
     public function tileUrlToFilename($url)
