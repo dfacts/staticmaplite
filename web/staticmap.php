@@ -41,4 +41,16 @@ $printer
     ->setMapType($_GET['maptype'])
 ;
 
+$markers = $_GET['markers'];
+
+if ($markers) {
+    $markerList = explode('|', $markers);
+
+    foreach ($markerList as $marker) {
+        list($markerLatitude, $markerLongitude, $markerType) = explode(',', $marker);
+
+        $printer->addMarker($markerType, $markerLatitude, $markerLongitude);
+    }
+}
+
 print $printer->showMap();

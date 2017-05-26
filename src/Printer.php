@@ -2,6 +2,7 @@
 
 namespace StaticMapLite;
 
+use StaticMapLite\TileResolver\CachedTileResolver;
 use StaticMapLite\TileResolver\TileResolver;
 
 class Printer
@@ -19,8 +20,8 @@ class Printer
     );
 
     protected $tileDefaultSrc = 'mapnik';
-    protected $markerBaseDir = 'images/markers';
-    protected $osmLogo = 'images/osm_logo.png';
+    protected $markerBaseDir = '../images/markers';
+    protected $osmLogo = '../images/osm_logo.png';
 
     protected $markerPrototypes = array(
         // found at http://www.mapito.net/map-marker-icons.html
@@ -55,7 +56,7 @@ class Printer
 
 
     protected $useTileCache = true;
-    protected $tileCacheBaseDir = '../cache/tiles';
+
 
     protected $useMapCache = false;
     protected $mapCacheBaseDir = '../cache/maps';
@@ -78,7 +79,7 @@ class Printer
         $this->height = 350;
         $this->maptype = $this->tileDefaultSrc;
 
-        $this->tileResolver = new TileResolver();
+        $this->tileResolver = new CachedTileResolver();
     }
 
     public function addMarker(string $markerType, float $latitude, float $longitude): Printer
@@ -195,6 +196,7 @@ class Printer
             $markerFilename = '';
             $markerShadow = '';
             $matches = false;
+
             // check for marker type, get settings from markerPrototypes
             if ($markerType) {
                 foreach ($this->markerPrototypes as $markerPrototype) {
@@ -245,7 +247,6 @@ class Printer
             // copy marker on basemap above shadow
             imagecopy($this->image, $markerImg, $destX + intval($markerImageOffsetX), $destY + intval($markerImageOffsetY),
                 0, 0, imagesx($markerImg), imagesy($markerImg));
-
         };
     }
 
@@ -296,19 +297,6 @@ class Printer
         }
     }
 
-    public function tileUrlToFilename($url)
-    {
-        return $this->tileCacheBaseDir . "/" . str_replace(array('http://'), '', $url);
-    }
-
-    public function checkTileCache($url)
-    {
-        $filename = $this->tileUrlToFilename($url);
-        if (file_exists($filename)) {
-            return file_get_contents($filename);
-        }
-    }
-
     public function checkMapCache()
     {
         $this->mapCacheID = md5($this->serializeParams());
@@ -327,20 +315,6 @@ class Printer
             $this->mapCacheFile = $this->mapCacheBaseDir . "/" . $this->maptype . "/" . $this->zoom . "/cache_" . substr($this->mapCacheID, 0, 2) . "/" . substr($this->mapCacheID, 2, 2) . "/" . substr($this->mapCacheID, 4);
         }
         return $this->mapCacheFile . "." . $this->mapCacheExtension;
-    }
-
-
-    public function mkdir_recursive($pathname, $mode)
-    {
-        is_dir(dirname($pathname)) || $this->mkdir_recursive(dirname($pathname), $mode);
-        return is_dir($pathname) || @mkdir($pathname, $mode);
-    }
-
-    public function writeTileToCache($url, $data)
-    {
-        $filename = $this->tileUrlToFilename($url);
-        $this->mkdir_recursive(dirname($filename), 0777);
-        file_put_contents($filename, $data);
     }
 
     public function fetchTile($url)
@@ -401,5 +375,11 @@ class Printer
             return imagepng($this->image);
 
         }
+    }
+
+    public function mkdir_recursive($pathname, $mode)
+    {
+        is_dir(dirname($pathname)) || $this->mkdir_recursive(dirname($pathname), $mode);
+        return is_dir($pathname) || @mkdir($pathname, $mode);
     }
 }
