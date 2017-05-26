@@ -1,0 +1,22 @@
+{
+    "name": "calderacc/staticmaplite",
+    "type": "library",
+    "license": "Apache",
+    "authors": [
+        {
+            "name": "Gerhard Koch",
+            "email": "gerhard.koch@ymail.com"
+        },
+        {
+            "name": "Malte Hübner",
+            "email": "maltehuebner@gmx.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "StaticMapLite\\": "src"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {}
+}
