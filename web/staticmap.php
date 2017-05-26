@@ -25,13 +25,9 @@
  *
  */
 
-error_reporting(0);
-ini_set('display_errors', 'off');
+require_once '../vendor/autoload.php';
 
-Class staticMapLite
-{
-
-}
+use StaticMapLite\staticMapLite;
 
 $map = new staticMapLite();
 print $map->showMap();

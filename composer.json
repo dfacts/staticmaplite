@@ -12,6 +12,11 @@
             "email": "maltehuebner@gmx.org"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "StaticMapLite\\": "src"
+        }
+    },
     "minimum-stability": "stable",
     "require": {}
 }

@@ -4,7 +4,6 @@ namespace StaticMapLite;
 
 class staticMapLite
 {
-
     protected $maxWidth = 1024;
     protected $maxHeight = 1024;
 
