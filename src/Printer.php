@@ -59,8 +59,11 @@ class Printer
     protected $mapCacheFile = '';
     protected $mapCacheExtension = 'png';
 
-    protected $zoom, $lat, $lon, $width, $height, $markers, $polylines, $image, $maptype;
+    protected $zoom, $lat, $lon, $width, $height, $image, $maptype;
     protected $centerX, $centerY, $offsetX, $offsetY;
+
+    protected $markers = [];
+    protected $polylines = [];
 
     public function __construct()
     {
@@ -69,80 +72,67 @@ class Printer
         $this->lon = 0;
         $this->width = 500;
         $this->height = 350;
-        $this->markers = array();
         $this->maptype = $this->tileDefaultSrc;
     }
 
-    public function parseParams()
+    public function addMarker(string $markerType, float $latitude, float $longitude): Printer
     {
-        global $_GET;
+        $marker = ['lat' => $latitude, 'lon' => $longitude, 'type' => $markerType];
 
-        if (!empty($_GET['show'])) {
-            $this->parseOjwParams();
-        }
-        else {
-            $this->parseLiteParams();
-        }
+        array_push($this->markers, $marker);
+
+        return $this;
     }
 
-    public function parseLiteParams()
+    public function addPolyline(string $polylineString, int $colorRed, int $colorGreen, int $colorBlue): Printer
     {
-        // get zoom from GET paramter
-        $this->zoom = $_GET['zoom'] ? intval($_GET['zoom']) : 0;
-        if ($this->zoom > 18) $this->zoom = 18;
+        $polyline = ['polyline' => $polylineString, 'colorRed' => $colorRed, 'colorGreen' => $colorGreen, 'colorBlue' => $colorBlue];
 
-        // get lat and lon from GET paramter
-        list($this->lat, $this->lon) = explode(',', $_GET['center']);
-        $this->lat = floatval($this->lat);
-        $this->lon = floatval($this->lon);
+        array_push($this->polylines, $polyline);
 
-        // get size from GET paramter
-        if ($_GET['size']) {
-            list($this->width, $this->height) = explode('x', $_GET['size']);
-            $this->width = intval($this->width);
-            if ($this->width > $this->maxWidth) $this->width = $this->maxWidth;
-            $this->height = intval($this->height);
-            if ($this->height > $this->maxHeight) $this->height = $this->maxHeight;
-        }
-        if (!empty($_GET['markers'])) {
-            $markers = explode('|', $_GET['markers']);
-            foreach ($markers as $marker) {
-                list($markerLat, $markerLon, $markerType) = explode(',', $marker);
-                $markerLat = floatval($markerLat);
-                $markerLon = floatval($markerLon);
-                $markerType = basename($markerType);
-                $this->markers[] = array('lat' => $markerLat, 'lon' => $markerLon, 'type' => $markerType);
-            }
-
-        }
-        if (!empty($_GET['polylines'])) {
-            list($polylineString, $colorRed, $colorGreen, $colorBlue) = explode(',', $_GET['polylines']);
-            $this->polylines[] = array('polyline' => $polylineString, 'colorRed' => $colorRed, 'colorGreen' => $colorGreen, 'colorBlue' => $colorBlue);
-        }
-        if ($_GET['maptype']) {
-            if (array_key_exists($_GET['maptype'], $this->tileSrcUrl)) $this->maptype = $_GET['maptype'];
-        }
+        return $this;
     }
 
-    public function parseOjwParams()
+    public function setCenter(float $latitude, float $longitude): Printer
     {
-        $this->lat = floatval($_GET['lat']);
-        $this->lon = floatval($_GET['lon']);
-        $this->zoom = intval($_GET['z']);
+        $this->lat = $latitude;
+        $this->lon = $longitude;
 
-        $this->width = intval($_GET['w']);
-        if ($this->width > $this->maxWidth) $this->width = $this->maxWidth;
-        $this->height = intval($_GET['h']);
-        if ($this->height > $this->maxHeight) $this->height = $this->maxHeight;
+        return $this;
+    }
 
+    public function setSize(int $width, int $height): Printer
+    {
+        $this->width = $width;
+        $this->height = $height;
 
-        if (!empty($_GET['mlat0'])) {
-            $markerLat = floatval($_GET['mlat0']);
-            if (!empty($_GET['mlon0'])) {
-                $markerLon = floatval($_GET['mlon0']);
-                $this->markers[] = array('lat' => $markerLat, 'lon' => $markerLon, 'type' => "bullseye");
-            }
+        if ($this->width > $this->maxWidth) {
+            $this->width = $this->maxWidth;
         }
+
+        if ($this->height > $this->maxHeight) {
+            $this->height = $this->maxHeight;
+        }
+
+        return $this;
+    }
+
+    public function setZoom(int $zoom): Printer
+    {
+        $this->zoom = $zoom;
+
+        if ($this->zoom > 18) {
+            $this->zoom = 18;
+        }
+
+        return $this;
+    }
+
+    public function setMapType(string $mapType): Printer
+    {
+        $this->maptype = $mapType;
+
+        return $this;
     }
 
     public function lonToTile($long, $zoom)
@@ -399,7 +389,6 @@ class Printer
 
     public function showMap()
     {
-        $this->parseParams();
         if ($this->useMapCache) {
             // use map cache, so check cache for map
             if (!$this->checkMapCache()) {

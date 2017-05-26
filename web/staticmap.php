@@ -30,4 +30,15 @@ require_once '../vendor/autoload.php';
 use StaticMapLite\Printer;
 
 $printer = new Printer();
+
+list($centerLatitude, $centerLongitude) = explode(',', $_GET['center']);
+list($width, $height) = explode('x', $_GET['size']);
+
+$printer
+    ->setCenter($centerLatitude, $centerLongitude)
+    ->setZoom($_GET['zoom'])
+    ->setSize($width, $height)
+    ->setMapType($_GET['maptype'])
+;
+
 print $printer->showMap();
