@@ -9,7 +9,7 @@ class Polyline
     protected $colorGreen = 0;
     protected $colorBlue = 0;
 
-    public function __construct(string $polyline, int $colorRed, int $colorGreen, int $colorBlue)
+    public function __construct(string $polyline, int $colorRed = 0, int $colorGreen = 0, int $colorBlue = 0)
     {
         $this->polyline = $polyline;
 

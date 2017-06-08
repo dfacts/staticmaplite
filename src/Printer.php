@@ -63,7 +63,6 @@ class Printer
 
     protected $useTileCache = true;
 
-
     protected $useMapCache = false;
     protected $mapCacheBaseDir = '../cache/maps';
     protected $mapCacheID = '';
@@ -262,7 +261,7 @@ class Printer
             $destinationLongitude = null;
 
             $color = imagecolorallocate($this->canvas->getImage(), $polyline->getColorRed(), $polyline->getColorGreen(), $polyline->getColorBlue());
-            imagesetthickness($this->image, 3);
+            imagesetthickness($this->image, 5);
             //imageantialias($this->image, true);
 
             while (!empty($polylineList)) {
