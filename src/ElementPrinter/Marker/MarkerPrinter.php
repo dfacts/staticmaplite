@@ -63,6 +63,7 @@ class MarkerPrinter
         $markerFilename = '';
         $markerShadow = '';
         $matches = false;
+        $markerIndex = 0;
 
         // check for marker type, get settings from markerPrototypes
         if ($this->marker->getMarkerType()) {

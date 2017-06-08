@@ -14,7 +14,7 @@ class Canvas
 
     protected $zoom = 0;
 
-    public function __construct(int $width, int $height, int $zoom, int $centerX, int $centerY)
+    public function __construct(int $width, int $height, int $zoom, float $centerX, float $centerY)
     {
         $this->width = $width;
         $this->height = $height;
@@ -42,12 +42,12 @@ class Canvas
         return $this->height;
     }
 
-    public function getCenterX(): int
+    public function getCenterX(): float
     {
         return $this->centerX;
     }
 
-    public function getCenterY(): int
+    public function getCenterY(): float
     {
         return $this->centerY;
     }

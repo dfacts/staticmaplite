@@ -215,7 +215,7 @@ class Printer
     public function copyrightNotice()
     {
         $logoImg = imagecreatefrompng($this->osmLogo);
-        imagecopy($this->canvas->getImage(), $logoImg, imagesx($this->image) - imagesx($logoImg), imagesy($this->image) - imagesy($logoImg), 0, 0, imagesx($logoImg), imagesy($logoImg));
+        imagecopy($this->canvas->getImage(), $logoImg, imagesx($this->canvas->getImage()) - imagesx($logoImg), imagesy($this->canvas->getImage()) - imagesy($logoImg), 0, 0, imagesx($logoImg), imagesy($logoImg));
     }
 
     public function sendHeader()
