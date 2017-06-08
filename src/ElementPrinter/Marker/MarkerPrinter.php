@@ -102,8 +102,8 @@ class MarkerPrinter
         }
 
         // calc position
-        $destX = floor(($canvas->getWidth() / 2) - $this->tileSize * ($canvas->getCenterY() - Util::lonToTile($this->marker->getLongitude(), $this->zoom)));
-        $destY = floor(($canvas->getHeight() / 2) - $this->tileSize * ($canvas->getCenterY() - Util::latToTile($this->marker->getLatitude(), $this->zoom)));
+        $destX = floor(($canvas->getWidth() / 2) - $this->tileSize * ($canvas->getCenterX() - Util::lonToTile($this->marker->getLongitude(), $canvas->getZoom())));
+        $destY = floor(($canvas->getHeight() / 2) - $this->tileSize * ($canvas->getCenterY() - Util::latToTile($this->marker->getLatitude(), $canvas->getZoom())));
 
         // copy shadow on basemap
         if ($markerShadow && $markerShadowImg) {
@@ -114,5 +114,9 @@ class MarkerPrinter
         // copy marker on basemap above shadow
         imagecopy($canvas->getImage(), $markerImg, $destX + intval($markerImageOffsetX), $destY + intval($markerImageOffsetY),
             0, 0, imagesx($markerImg), imagesy($markerImg));
+
+
+        return $this;
     }
+
 }

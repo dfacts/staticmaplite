@@ -5,6 +5,7 @@ namespace StaticMapLite;
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\Element\Polyline\Polyline;
+use StaticMapLite\ElementPrinter\Marker\MarkerPrinter;
 use StaticMapLite\ElementPrinter\Polyline\PolylinePrinter;
 use StaticMapLite\TileResolver\CachedTileResolver;
 
@@ -168,10 +169,14 @@ class Printer
 
     public function placeMarkers()
     {
+        $printer = new MarkerPrinter();
+
         foreach ($this->markers as $marker) {
-
-
-        };
+            $printer
+                ->setMarker($marker)
+                ->paint($this->canvas)
+            ;
+        }
     }
 
     public function placePolylines()
