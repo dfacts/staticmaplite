@@ -3,6 +3,7 @@
 namespace StaticMapLite;
 
 use StaticMapLite\Canvas\Canvas;
+use StaticMapLite\CanvasTilePainter\CanvasTilePainter;
 use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\ElementPrinter\Marker\MarkerPrinter;
@@ -137,35 +138,13 @@ class Printer
             $this->centerY
         );
 
-        $startX = floor($this->centerX - ($this->width / $this->tileSize) / 2);
-        $startY = floor($this->centerY - ($this->height / $this->tileSize) / 2);
-        $endX = ceil($this->centerX + ($this->width / $this->tileSize) / 2);
-        $endY = ceil($this->centerY + ($this->height / $this->tileSize) / 2);
-        $this->offsetX = -floor(($this->centerX - floor($this->centerX)) * $this->tileSize);
-        $this->offsetY = -floor(($this->centerY - floor($this->centerY)) * $this->tileSize);
-        $this->offsetX += floor($this->width / 2);
-        $this->offsetY += floor($this->height / 2);
-        $this->offsetX += floor($startX - floor($this->centerX)) * $this->tileSize;
-        $this->offsetY += floor($startY - floor($this->centerY)) * $this->tileSize;
-
-        for ($x = $startX; $x <= $endX; $x++) {
-            for ($y = $startY; $y <= $endY; $y++) {
-                $tileData = $this->tileResolver->fetch($this->zoom, $x, $y);
-
-                if ($tileData) {
-                    $tileImage = imagecreatefromstring($tileData);
-                } else {
-                    $tileImage = imagecreate($this->tileSize, $this->tileSize);
-                    $color = imagecolorallocate($tileImage, 255, 255, 255);
-                    @imagestring($tileImage, 1, 127, 127, 'err', $color);
-                }
-                $destX = ($x - $startX) * $this->tileSize + $this->offsetX;
-                $destY = ($y - $startY) * $this->tileSize + $this->offsetY;
-                imagecopy($this->canvas->getImage(), $tileImage, $destX, $destY, 0, 0, $this->tileSize, $this->tileSize);
-            }
-        }
+        $ctp = new CanvasTilePainter();
+        $ctp
+            ->setCanvas($this->canvas)
+            ->setTileResolver($this->tileResolver)
+            ->paint()
+        ;
     }
-
 
     public function placeMarkers()
     {

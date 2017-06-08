@@ -6,6 +6,8 @@ class Canvas
 {
     protected $image = null;
 
+    protected $tileSize = 256;
+
     protected $width = 0;
     protected $height = 0;
 
@@ -55,5 +57,10 @@ class Canvas
     public function getZoom(): int
     {
         return $this->zoom;
+    }
+
+    public function getTileSize(): int
+    {
+        return $this->tileSize;
     }
 }

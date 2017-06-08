@@ -13,8 +13,6 @@ class MarkerPrinter
 
     protected $markerBaseDir = '../images/markers';
 
-    protected $tileSize = 256;
-
     protected $markerPrototypes = array(
         // found at http://www.mapito.net/map-marker-icons.html
         'lighblue' => array('regex' => '/^lightblue([0-9]+)$/',
@@ -103,8 +101,8 @@ class MarkerPrinter
         }
 
         // calc position
-        $destX = floor(($canvas->getWidth() / 2) - $this->tileSize * ($canvas->getCenterX() - Util::lonToTile($this->marker->getLongitude(), $canvas->getZoom())));
-        $destY = floor(($canvas->getHeight() / 2) - $this->tileSize * ($canvas->getCenterY() - Util::latToTile($this->marker->getLatitude(), $canvas->getZoom())));
+        $destX = floor(($canvas->getWidth() / 2) - $canvas->getTileSize() * ($canvas->getCenterX() - Util::lonToTile($this->marker->getLongitude(), $canvas->getZoom())));
+        $destY = floor(($canvas->getHeight() / 2) - $canvas->getTileSize() * ($canvas->getCenterY() - Util::latToTile($this->marker->getLatitude(), $canvas->getZoom())));
 
         // copy shadow on basemap
         if ($markerShadow && $markerShadowImg) {
