@@ -27,6 +27,7 @@
 
 require_once '../vendor/autoload.php';
 
+use StaticMapLite\Element\Marker\ExtraMarker;
 use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\Printer;
 
@@ -50,7 +51,7 @@ if ($markers) {
     foreach ($markerList as $marker) {
         list($markerLatitude, $markerLongitude, $markerType) = explode(',', $marker);
 
-        $marker = new Marker($markerType, $markerLatitude, $markerLongitude);
+        $marker = new ExtraMarker(ExtraMarker::SHAPE_CIRCLE, ExtraMarker::COLOR_GREEN, $markerLatitude, $markerLongitude);
 
         $printer->addMarker($marker);
     }

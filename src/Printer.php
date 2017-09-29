@@ -3,6 +3,8 @@
 namespace StaticMapLite;
 
 use StaticMapLite\Canvas\Canvas;
+use StaticMapLite\Element\Marker\AbstractMarker;
+use StaticMapLite\Element\Marker\ExtraMarker;
 use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\TileResolver\CachedTileResolver;
@@ -89,7 +91,7 @@ class Printer
         $this->tileResolver->setTileLayerUrl($this->tileSrcUrl[$this->maptype]);
     }
 
-    public function addMarker(Marker $marker): Printer
+    public function addMarker(AbstractMarker $marker): Printer
     {
         $this->markers[] = $marker;
 
@@ -189,10 +191,38 @@ class Printer
         }
     }
 
+    public function placeExtraMarker(ExtraMarker $extraMarker)
+    {
+        $extramarkers = imagecreatefrompng($this->markerBaseDir . '/../extramarkers.png');
+
+        $markerImage = imagecreatetruecolor(75, 100);
+        $trans_colour = imagecolorallocatealpha($markerImage, 0, 0, 0, 127);
+        imagefill($markerImage, 0, 0, $trans_colour);
+
+        $destX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($extraMarker->getLongitude(), $this->zoom)));
+        $destY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($extraMarker->getLatitude(), $this->zoom)));
+
+        $markerWidth = imagesx($markerImage);
+        $markerHeight = imagesy($markerImage);
+
+        $destX -= $markerWidth / 2; 
+        $destY -= $markerHeight;
+
+
+        imagecopy($markerImage, $extramarkers, 0, 0, 0, 0, $markerWidth, $markerHeight);
+
+        imagecopy($this->canvas->getImage(), $markerImage, $destX, $destY, 0, 0, imagesx($markerImage), imagesy($markerImage));
+    }
 
     public function placeMarkers()
     {
         foreach ($this->markers as $marker) {
+            if ($marker instanceof ExtraMarker) {
+                $this->placeExtraMarker($marker);
+
+                continue;
+            }
+
             $markerFilename = '';
             $markerShadow = '';
             $matches = false;

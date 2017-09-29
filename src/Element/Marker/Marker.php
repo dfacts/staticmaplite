@@ -2,10 +2,8 @@
 
 namespace StaticMapLite\Element\Marker;
 
-class Marker
+class Marker extends AbstractMarker
 {
-    protected $latitude;
-    protected $longitude;
     protected $markerType;
 
     public function __construct(string $markerType, float $latitude, float $longitude)
@@ -20,13 +18,5 @@ class Marker
         return $this->markerType;
     }
 
-    public function getLatitude(): float
-    {
-        return $this->latitude;
-    }
 
-    public function getLongitude(): float
-    {
-        return $this->longitude;
-    }
 }
