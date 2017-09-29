@@ -7,6 +7,8 @@ use StaticMapLite\Element\Marker\AbstractMarker;
 use StaticMapLite\Element\Marker\ExtraMarker;
 use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\Element\Polyline\Polyline;
+use StaticMapLite\ElementPrinter\Marker\MarkerPrinter;
+use StaticMapLite\ElementPrinter\Polyline\PolylinePrinter;
 use StaticMapLite\TileResolver\CachedTileResolver;
 
 class Printer
@@ -28,43 +30,12 @@ class Printer
     ];
 
     protected $tileDefaultSrc = 'mapnik';
-    protected $markerBaseDir = '../images/markers';
     protected $osmLogo = '../images/osm_logo.png';
 
-    protected $markerPrototypes = array(
-        // found at http://www.mapito.net/map-marker-icons.html
-        'lighblue' => array('regex' => '/^lightblue([0-9]+)$/',
-            'extension' => '.png',
-            'shadow' => false,
-            'offsetImage' => '0,-19',
-            'offsetShadow' => false,
-        ),
-        // openlayers std markers
-        'ol-marker' => array('regex' => '/^ol-marker(|-blue|-gold|-green)+$/',
-            'extension' => '.png',
-            'shadow' => '../marker_shadow.png',
-            'offsetImage' => '-10,-25',
-            'offsetShadow' => '-1,-13',
-        ),
-        // taken from http://www.visual-case.it/cgi-bin/vc/GMapsIcons.pl
-        'ylw' => array('regex' => '/^(pink|purple|red|ltblu|ylw)-pushpin$/',
-            'extension' => '.png',
-            'shadow' => '../marker_shadow.png',
-            'offsetImage' => '-10,-32',
-            'offsetShadow' => '-1,-13',
-        ),
-        // http://svn.openstreetmap.org/sites/other/StaticMap/symbols/0.png
-        'ojw' => array('regex' => '/^bullseye$/',
-            'extension' => '.png',
-            'shadow' => false,
-            'offsetImage' => '-20,-20',
-            'offsetShadow' => false,
-        ),
-    );
+
 
 
     protected $useTileCache = true;
-
 
     protected $useMapCache = false;
     protected $mapCacheBaseDir = '../cache/maps';
@@ -160,7 +131,13 @@ class Printer
 
     public function createBaseMap()
     {
-        $this->canvas = new Canvas($this->width, $this->height);
+        $this->canvas = new Canvas(
+            $this->width,
+            $this->height,
+            $this->zoom,
+            $this->centerX,
+            $this->centerY
+        );
 
         $startX = floor($this->centerX - ($this->width / $this->tileSize) / 2);
         $startY = floor($this->centerY - ($this->height / $this->tileSize) / 2);
@@ -191,133 +168,28 @@ class Printer
         }
     }
 
-    public function placeExtraMarker(ExtraMarker $extraMarker)
-    {
-        $extramarkers = imagecreatefrompng($this->markerBaseDir . '/../extramarkers.png');
-
-        $markerImage = imagecreatetruecolor(75, 100);
-        $trans_colour = imagecolorallocatealpha($markerImage, 0, 0, 0, 127);
-        imagefill($markerImage, 0, 0, $trans_colour);
-
-        $destX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($extraMarker->getLongitude(), $this->zoom)));
-        $destY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($extraMarker->getLatitude(), $this->zoom)));
-
-        $markerWidth = imagesx($markerImage);
-        $markerHeight = imagesy($markerImage);
-
-        $destX -= $markerWidth / 2; 
-        $destY -= $markerHeight;
-
-
-        imagecopy($markerImage, $extramarkers, 0, 0, 0, 0, $markerWidth, $markerHeight);
-
-        imagecopy($this->canvas->getImage(), $markerImage, $destX, $destY, 0, 0, imagesx($markerImage), imagesy($markerImage));
-    }
-
     public function placeMarkers()
     {
+        $printer = new MarkerPrinter();
+
         foreach ($this->markers as $marker) {
-            if ($marker instanceof ExtraMarker) {
-                $this->placeExtraMarker($marker);
-
-                continue;
-            }
-
-            $markerFilename = '';
-            $markerShadow = '';
-            $matches = false;
-
-            // check for marker type, get settings from markerPrototypes
-            if ($marker->getMarkerType()) {
-                foreach ($this->markerPrototypes as $markerPrototype) {
-                    if (preg_match($markerPrototype['regex'], $marker->getMarkerType(), $matches)) {
-                        $markerFilename = $matches[0] . $markerPrototype['extension'];
-                        if ($markerPrototype['offsetImage']) {
-                            list($markerImageOffsetX, $markerImageOffsetY) = explode(",", $markerPrototype['offsetImage']);
-                        }
-                        $markerShadow = $markerPrototype['shadow'];
-                        if ($markerShadow) {
-                            list($markerShadowOffsetX, $markerShadowOffsetY) = explode(",", $markerPrototype['offsetShadow']);
-                        }
-                    }
-
-                }
-            }
-
-            // check required files or set default
-            if ($markerFilename == '' || !file_exists($this->markerBaseDir . '/' . $markerFilename)) {
-                $markerIndex++;
-                $markerFilename = 'lightblue' . $markerIndex . '.png';
-                $markerImageOffsetX = 0;
-                $markerImageOffsetY = -19;
-            }
-
-            // create img resource
-            if (file_exists($this->markerBaseDir . '/' . $markerFilename)) {
-                $markerImg = imagecreatefrompng($this->markerBaseDir . '/' . $markerFilename);
-            } else {
-                $markerImg = imagecreatefrompng($this->markerBaseDir . '/lightblue1.png');
-            }
-
-            // check for shadow + create shadow recource
-            if ($markerShadow && file_exists($this->markerBaseDir . '/' . $markerShadow)) {
-                $markerShadowImg = imagecreatefrompng($this->markerBaseDir . '/' . $markerShadow);
-            }
-
-            // calc position
-            $destX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($marker->getLongitude(), $this->zoom)));
-            $destY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($marker->getLatitude(), $this->zoom)));
-
-            // copy shadow on basemap
-            if ($markerShadow && $markerShadowImg) {
-                imagecopy($this->canvas->getImage(), $markerShadowImg, $destX + intval($markerShadowOffsetX), $destY + intval($markerShadowOffsetY),
-                    0, 0, imagesx($markerShadowImg), imagesy($markerShadowImg));
-            }
-
-            // copy marker on basemap above shadow
-            imagecopy($this->canvas->getImage(), $markerImg, $destX + intval($markerImageOffsetX), $destY + intval($markerImageOffsetY),
-                0, 0, imagesx($markerImg), imagesy($markerImg));
-        };
+            $printer
+                ->setMarker($marker)
+                ->paint($this->canvas)
+            ;
+        }
     }
 
     public function placePolylines()
     {
+        $printer = new PolylinePrinter();
+
         /** @var Polyline $polyline */
         foreach ($this->polylines as $polyline) {
-            $polylineList = \Polyline::decode($polyline->getPolyline());
-
-            $sourceLatitude = null;
-            $sourceLongitude = null;
-            $destinationLatitude = null;
-            $destinationLongitude = null;
-
-            $color = imagecolorallocate($this->canvas->getImage(), $polyline->getColorRed(), $polyline->getColorGreen(), $polyline->getColorBlue());
-            imagesetthickness($this->image, 3);
-            //imageantialias($this->image, true);
-
-            while (!empty($polylineList)) {
-                if (!$sourceLatitude) {
-                    $sourceLatitude = array_shift($polylineList);
-                }
-
-                if (!$sourceLongitude) {
-                    $sourceLongitude = array_shift($polylineList);
-                }
-
-                $sourceX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($sourceLongitude, $this->zoom)));
-                $sourceY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($sourceLatitude, $this->zoom)));
-
-                $destinationLatitude = array_shift($polylineList);
-                $destinationLongitude = array_shift($polylineList);
-
-                $destinationX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($destinationLongitude, $this->zoom)));
-                $destinationY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($destinationLatitude, $this->zoom)));
-
-                imageline($this->canvas->getImage() , $sourceX, $sourceY , $destinationX, $destinationY, $color);
-
-                $sourceLatitude = $destinationLatitude;
-                $sourceLongitude = $destinationLongitude;
-            }
+            $printer
+                ->setPolyline($polyline)
+                ->paint($this->canvas)
+            ;
         }
     }
 

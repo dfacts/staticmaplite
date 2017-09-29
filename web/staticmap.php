@@ -29,6 +29,7 @@ require_once '../vendor/autoload.php';
 
 use StaticMapLite\Element\Marker\ExtraMarker;
 use StaticMapLite\Element\Marker\Marker;
+use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\Printer;
 
 $printer = new Printer();
@@ -48,12 +49,28 @@ $markers = $_GET['markers'];
 if ($markers) {
     $markerList = explode('|', $markers);
 
-    foreach ($markerList as $marker) {
-        list($markerLatitude, $markerLongitude, $markerType) = explode(',', $marker);
+    foreach ($markerList as $markerData) {
+        list($markerLatitude, $markerLongitude, $markerType) = explode(',', $markerData);
 
         $marker = new ExtraMarker(ExtraMarker::SHAPE_CIRCLE, ExtraMarker::COLOR_GREEN, $markerLatitude, $markerLongitude);
 
         $printer->addMarker($marker);
+    }
+}
+
+$polylines = $_GET['polylines'];
+
+if ($polylines) {
+    $polylineList = explode('|', $polylines);
+
+    foreach ($polylineList as $polylineData) {
+        list($polyline64String, $colorRed, $colorGreen, $colorBlue) = explode(',', $polylineData);
+
+        $polylineString = base64_decode($polyline64String);
+
+        $polyline = new Polyline($polylineString, $colorRed, $colorGreen, $colorBlue);
+
+        $printer->addPolyline($polyline);
     }
 }
 
