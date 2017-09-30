@@ -60,9 +60,25 @@ class ExtraMarkerPrinter
 
         imagecopy($markerImage, $extramarkers, 0, 0, $sourceX, $sourceY, $markerWidth, $markerHeight);
 
-        $white = imagecolorallocate($markerImage, 255, 255, 255);
-        imagettftext($markerImage, 24, 0, 16, 43, $white, __DIR__.'/../../../fonts/fontawesome-webfont.ttf', json_decode(sprintf('"&#x%s;"', $this->marker->getAwesome())));
+        $this->writeMarker($markerImage);
 
         return $markerImage;
+    }
+
+    protected function writeMarker($markerImage)
+    {
+        $fontSize = 20;
+        $fontFile = __DIR__.'/../../../fonts/fontawesome-webfont.ttf';
+        $text = json_decode(sprintf('"&#x%s;"', $this->marker->getAwesome()));
+
+        $bbox = imagettfbbox($fontSize, 0, $fontFile, $text);
+
+        $x = $bbox[0] + (imagesx($markerImage) / 2) - ($bbox[4] / 2) + 3;
+        $y = 42;
+
+        $white = imagecolorallocate($markerImage, 255, 255, 255);
+        imagettftext($markerImage, $fontSize, 0, $x, $y, $white, $fontFile, $text);
+
+
     }
 }
