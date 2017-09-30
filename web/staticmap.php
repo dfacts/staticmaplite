@@ -49,9 +49,9 @@ if ($markers) {
     $markerList = explode('|', $markers);
 
     foreach ($markerList as $markerData) {
-        list($markerLatitude, $markerLongitude, $markerType) = explode(',', $markerData);
+        list($markerLatitude, $markerLongitude, $markerShape, $markerColor, $markerIcon) = explode(',', $markerData);
 
-        $marker = new ExtraMarker(ExtraMarker::SHAPE_CIRCLE, ExtraMarker::COLOR_BLACK, $markerLatitude, $markerLongitude);
+        $marker = new ExtraMarker(getMarkerShape($markerShape), getMarkerColor($markerColor), $markerLatitude, $markerLongitude);
 
         $printer->addMarker($marker);
     }
@@ -74,3 +74,29 @@ if ($polylines) {
 }
 
 print $printer->showMap();
+
+function getMarkerShape(string $markerShape): int
+{
+    $shapes = ['circle', 'square', 'star', 'penta'];
+
+    $key = array_search($markerShape, $shapes);
+
+    if (false === $key) {
+        die('This shape is not available');
+    }
+
+    return $key;
+}
+
+function getMarkerColor(string $markerColor): int
+{
+    $colors = ['red', 'orangedark', 'orange', 'yellow', 'bluedark', 'blue', 'cyan', 'purple', 'violet', 'pink', 'greendark', 'green', 'greenlight', 'black', 'white'];
+
+    $key = array_search($markerColor, $colors);
+
+    if (false === $key) {
+        die('This color is not available');
+    }
+
+    return $key;
+}
