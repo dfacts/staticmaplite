@@ -14,15 +14,16 @@ class ExtraMarker extends AbstractMarker
     const COLOR_ORANGE = 2;
     const COLOR_YELLOW = 3;
     const COLOR_BLUEDARK = 4;
-    const COLOR_CYAN = 5;
-    const COLOR_PURPLE = 6;
-    const COLOR_VIOLET = 7;
-    const COLOR_PINK = 8;
-    const COLOR_GREENDARK = 9;
-    const COLOR_GREEN = 10;
-    const COLOR_GREENLIGHT = 11;
-    const COLOR_BLACK = 12;
-    const COLOR_WHITE = 13;
+    const COLOR_BLUE = 5;
+    const COLOR_CYAN = 6;
+    const COLOR_PURPLE = 7;
+    const COLOR_VIOLET = 8;
+    const COLOR_PINK = 9;
+    const COLOR_GREENDARK = 10;
+    const COLOR_GREEN = 11;
+    const COLOR_GREENLIGHT = 12;
+    const COLOR_BLACK = 13;
+    const COLOR_WHITE = 14;
 
     protected $shape;
     protected $color;
