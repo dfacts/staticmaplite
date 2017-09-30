@@ -10,7 +10,7 @@ use StaticMapLite\Util;
 
 class ExtraMarkerPrinter
 {
-    /** @var Marker $marker */
+    /** @var ExtraMarker $marker */
     protected $marker = null;
 
     public function __construct()
@@ -48,17 +48,20 @@ class ExtraMarkerPrinter
         $extramarkersImgUrl = __DIR__.'/../../../images/extramarkers.png';
         $extramarkers = imagecreatefrompng($extramarkersImgUrl);
 
-        $markerImage = imagecreatetruecolor(75, 100);
-        $trans_colour = imagecolorallocatealpha($markerImage, 0, 0, 0, 127);
-        imagefill($markerImage, 0, 0, $trans_colour);
+        $markerImage = imagecreatetruecolor(72, 92);
+        $transparentColor = imagecolorallocatealpha($markerImage, 0, 0, 0, 127);
+        imagefill($markerImage, 0, 0, $transparentColor);
 
         $markerWidth = imagesx($markerImage);
         $markerHeight = imagesy($markerImage);
 
-        imagecopy($markerImage, $extramarkers, 0, 0, 0, 0, $markerWidth, $markerHeight);
+        $sourceX = $markerWidth * $this->marker->getColor();
+        $sourceY = $markerHeight * $this->marker->getShape();
+
+        imagecopy($markerImage, $extramarkers, 0, 0, $sourceX, $sourceY, $markerWidth, $markerHeight);
 
         $white = imagecolorallocate($markerImage, 255, 255, 255);
-        imagettftext($markerImage, 24, 0, 16, 42, $white, __DIR__.'/../../../fonts/fontawesome-webfont.ttf', json_decode('"&#xF206;"'));
+        imagettftext($markerImage, 24, 0, 16, 47, $white, __DIR__.'/../../../fonts/fontawesome-webfont.ttf', json_decode('"&#xF206;"'));
 
         return $markerImage;
     }

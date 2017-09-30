@@ -35,4 +35,14 @@ class ExtraMarker extends AbstractMarker
         $this->latitude = $latitude;
         $this->longitude = $longitude;
     }
+
+    public function getShape(): int
+    {
+        return $this->shape;
+    }
+
+    public function getColor(): int
+    {
+        return $this->color;
+    }
 }

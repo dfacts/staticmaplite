@@ -51,7 +51,7 @@ if ($markers) {
     foreach ($markerList as $markerData) {
         list($markerLatitude, $markerLongitude, $markerType) = explode(',', $markerData);
 
-        $marker = new ExtraMarker(ExtraMarker::SHAPE_CIRCLE, ExtraMarker::COLOR_GREEN, $markerLatitude, $markerLongitude);
+        $marker = new ExtraMarker(ExtraMarker::SHAPE_CIRCLE, ExtraMarker::COLOR_BLACK, $markerLatitude, $markerLongitude);
 
         $printer->addMarker($marker);
     }
