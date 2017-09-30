@@ -6,6 +6,7 @@ use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\CanvasTilePainter\CanvasTilePainter;
 use StaticMapLite\Element\Marker\AbstractMarker;
 use StaticMapLite\Element\Polyline\Polyline;
+use StaticMapLite\ElementPrinter\Marker\ExtraMarkerPrinter;
 use StaticMapLite\ElementPrinter\Marker\MarkerPrinter;
 use StaticMapLite\ElementPrinter\Polyline\PolylinePrinter;
 use StaticMapLite\TileResolver\CachedTileResolver;
@@ -148,7 +149,7 @@ class Printer
 
     public function placeMarkers()
     {
-        $printer = new MarkerPrinter();
+        $printer = new ExtraMarkerPrinter();
 
         foreach ($this->markers as $marker) {
             $printer

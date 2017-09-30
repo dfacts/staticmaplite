@@ -3,6 +3,7 @@
 namespace StaticMapLite\ElementPrinter\Marker;
 
 use StaticMapLite\Canvas\Canvas;
+use StaticMapLite\Element\Marker\AbstractMarker;
 use StaticMapLite\Element\Marker\ExtraMarker;
 use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\Util;
@@ -50,37 +51,13 @@ class MarkerPrinter
 
     }
 
-    public function setMarker(Marker $marker): MarkerPrinter
+    public function setMarker(AbstractMarker $marker): MarkerPrinter
     {
         $this->marker = $marker;
 
         return $this;
     }
 
-    /**
-    public function placeExtraMarker(ExtraMarker $extraMarker)
-    {
-        $extramarkers = imagecreatefrompng($this->markerBaseDir . '/../extramarkers.png');
-
-        $markerImage = imagecreatetruecolor(75, 100);
-        $trans_colour = imagecolorallocatealpha($markerImage, 0, 0, 0, 127);
-        imagefill($markerImage, 0, 0, $trans_colour);
-
-        $destX = floor(($this->width / 2) - $this->tileSize * ($this->centerX - Util::lonToTile($extraMarker->getLongitude(), $this->zoom)));
-        $destY = floor(($this->height / 2) - $this->tileSize * ($this->centerY - Util::latToTile($extraMarker->getLatitude(), $this->zoom)));
-
-        $markerWidth = imagesx($markerImage);
-        $markerHeight = imagesy($markerImage);
-
-        $destX -= $markerWidth / 2;
-        $destY -= $markerHeight;
-
-
-        imagecopy($markerImage, $extramarkers, 0, 0, 0, 0, $markerWidth, $markerHeight);
-
-        imagecopy($this->canvas->getImage(), $markerImage, $destX, $destY, 0, 0, imagesx($markerImage), imagesy($markerImage));
-    }
-**/
     public function paint(Canvas $canvas): MarkerPrinter
     {
         $markerFilename = '';

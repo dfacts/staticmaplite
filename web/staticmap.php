@@ -28,7 +28,6 @@
 require_once '../vendor/autoload.php';
 
 use StaticMapLite\Element\Marker\ExtraMarker;
-use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\Printer;
 
