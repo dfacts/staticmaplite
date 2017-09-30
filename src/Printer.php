@@ -210,9 +210,18 @@ class Printer
     {
         $this->initCoords();
         $this->createBaseMap();
-        if (count($this->markers)) $this->placeMarkers();
-        if (count($this->polylines)) $this->placePolylines();
-        if ($this->osmLogo) $this->copyrightNotice();
+
+        if (count($this->polylines)) {
+            $this->placePolylines();
+        }
+
+        if (count($this->markers)) {
+            $this->placeMarkers();
+        }
+
+        if ($this->osmLogo) {
+            $this->copyrightNotice();
+        }
     }
 
     public function showMap()
