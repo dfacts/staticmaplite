@@ -27,12 +27,7 @@ class ExtraMarkerPrinter
 
     public function paint(Canvas $canvas): ExtraMarkerPrinter
     {
-        $extramarkersImgUrl = __DIR__.'/../../../images/extramarkers.png';
-        $extramarkers = imagecreatefrompng($extramarkersImgUrl);
-
-        $markerImage = imagecreatetruecolor(75, 100);
-        $trans_colour = imagecolorallocatealpha($markerImage, 0, 0, 0, 127);
-        imagefill($markerImage, 0, 0, $trans_colour);
+        $markerImage = $this->createMarker();
 
         $destX = floor(($canvas->getWidth() / 2) - $canvas->getTileSize() * ($canvas->getCenterX() - Util::lonToTile($this->marker->getLongitude(), $canvas->getZoom())));
         $destY = floor(($canvas->getHeight() / 2) - $canvas->getTileSize() * ($canvas->getCenterY() - Util::latToTile($this->marker->getLatitude(), $canvas->getZoom())));
@@ -43,11 +38,28 @@ class ExtraMarkerPrinter
         $destX -= $markerWidth / 2;
         $destY -= $markerHeight;
 
-
-        imagecopy($markerImage, $extramarkers, 0, 0, 0, 0, $markerWidth, $markerHeight);
-
         imagecopy($canvas->getImage(), $markerImage, $destX, $destY, 0, 0, imagesx($markerImage), imagesy($markerImage));
 
         return $this;
+    }
+
+    protected function createMarker()
+    {
+        $extramarkersImgUrl = __DIR__.'/../../../images/extramarkers.png';
+        $extramarkers = imagecreatefrompng($extramarkersImgUrl);
+
+        $markerImage = imagecreatetruecolor(75, 100);
+        $trans_colour = imagecolorallocatealpha($markerImage, 0, 0, 0, 127);
+        imagefill($markerImage, 0, 0, $trans_colour);
+
+        $markerWidth = imagesx($markerImage);
+        $markerHeight = imagesy($markerImage);
+
+        imagecopy($markerImage, $extramarkers, 0, 0, 0, 0, $markerWidth, $markerHeight);
+
+        $white = imagecolorallocate($markerImage, 255, 255, 255);
+        imagettftext($markerImage, 24, 0, 16, 42, $white, __DIR__.'/../../../fonts/fontawesome-webfont.ttf', json_decode('"&#xF206;"'));
+
+        return $markerImage;
     }
 }
