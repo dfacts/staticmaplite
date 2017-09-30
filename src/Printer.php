@@ -4,7 +4,7 @@ namespace StaticMapLite;
 
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\CanvasTilePainter\CanvasTilePainter;
-use StaticMapLite\Element\Marker\Marker;
+use StaticMapLite\Element\Marker\AbstractMarker;
 use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\ElementPrinter\Marker\MarkerPrinter;
 use StaticMapLite\ElementPrinter\Polyline\PolylinePrinter;
@@ -61,7 +61,7 @@ class Printer
         $this->tileResolver->setTileLayerUrl($this->tileSrcUrl[$this->maptype]);
     }
 
-    public function addMarker(Marker $marker): Printer
+    public function addMarker(AbstractMarker $marker): Printer
     {
         $this->markers[] = $marker;
 
