@@ -27,11 +27,13 @@ class ExtraMarker extends AbstractMarker
 
     protected $shape;
     protected $color;
+    protected $awesome;
 
-    public function __construct(int $shape, int $color, float $latitude, float $longitude)
+    public function __construct(int $shape, int $color, string $awesome, float $latitude, float $longitude)
     {
         $this->shape = $shape;
         $this->color = $color;
+        $this->awesome = $awesome;
 
         $this->latitude = $latitude;
         $this->longitude = $longitude;
@@ -45,5 +47,10 @@ class ExtraMarker extends AbstractMarker
     public function getColor(): int
     {
         return $this->color;
+    }
+
+    public function getAwesome(): string
+    {
+        return $this->awesome;
     }
 }
