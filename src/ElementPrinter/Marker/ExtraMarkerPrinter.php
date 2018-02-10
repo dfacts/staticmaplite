@@ -13,9 +13,25 @@ class ExtraMarkerPrinter
     /** @var ExtraMarker $marker */
     protected $marker = null;
 
+    /** @var int $baseMarkerWidth */
+    protected $baseMarkerWidth = 72;
+
+    /** @var int $baseMarkerHeight */
+    protected $baseMarkerHeight = 92;
+
+    /** @var float $markerSize */
+    protected $markerSize = 0.75;
+
     public function __construct()
     {
 
+    }
+
+    public function setMarkerSize(float $markerSize): ExtraMarkerPrinter
+    {
+        $this->markerSize = $markerSize;
+
+        return $this;
     }
 
     public function setMarker(AbstractMarker $marker): ExtraMarkerPrinter
@@ -35,10 +51,21 @@ class ExtraMarkerPrinter
         $markerWidth = imagesx($markerImage);
         $markerHeight = imagesy($markerImage);
 
-        $destX -= $markerWidth / 2;
-        $destY -= $markerHeight;
+        $destX -= $markerWidth * $this->markerSize / 2;
+        $destY -= $markerHeight * $this->markerSize;
 
-        imagecopy($canvas->getImage(), $markerImage, $destX, $destY, 0, 0, imagesx($markerImage), imagesy($markerImage));
+        imagecopyresampled(
+            $canvas->getImage(),
+            $markerImage,
+            $destX,
+            $destY,
+            0,
+            0,
+            $markerWidth * $this->markerSize,
+            $markerHeight * $this->markerSize,
+            $markerWidth,
+            $markerHeight
+        );
 
         return $this;
     }
@@ -48,17 +75,23 @@ class ExtraMarkerPrinter
         $extramarkersImgUrl = __DIR__.'/../../../images/extramarkers.png';
         $extramarkers = imagecreatefrompng($extramarkersImgUrl);
 
-        $markerImage = imagecreatetruecolor(72, 92);
+        $markerImage = imagecreatetruecolor($this->baseMarkerWidth, $this->baseMarkerHeight);
         $transparentColor = imagecolorallocatealpha($markerImage, 0, 0, 0, 127);
         imagefill($markerImage, 0, 0, $transparentColor);
 
-        $markerWidth = imagesx($markerImage);
-        $markerHeight = imagesy($markerImage);
+        $sourceX = $this->baseMarkerWidth * $this->marker->getColor();
+        $sourceY = $this->baseMarkerHeight * $this->marker->getShape();
 
-        $sourceX = $markerWidth * $this->marker->getColor();
-        $sourceY = $markerHeight * $this->marker->getShape();
-
-        imagecopy($markerImage, $extramarkers, 0, 0, $sourceX, $sourceY, $markerWidth, $markerHeight);
+        imagecopy(
+            $markerImage,
+            $extramarkers,
+            0,
+            0,
+            $sourceX,
+            $sourceY,
+            $this->baseMarkerWidth,
+            $this->baseMarkerHeight
+        );
 
         $this->writeMarker($markerImage);
 
@@ -78,7 +111,5 @@ class ExtraMarkerPrinter
 
         $white = imagecolorallocate($markerImage, 255, 255, 255);
         imagettftext($markerImage, $fontSize, 0, $x, $y, $white, $fontFile, $text);
-
-
     }
 }
