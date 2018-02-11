@@ -10,48 +10,8 @@ use StaticMapLite\ElementPrinter\Marker\ExtraMarkerPrinter;
 use StaticMapLite\ElementPrinter\Polyline\PolylinePrinter;
 use StaticMapLite\TileResolver\CachedTileResolver;
 
-class Printer
+class Printer extends AbstractPrinter
 {
-    /** @var int $maxWidth */
-    protected $maxWidth = 1024;
-
-    /** @var int $maxHeight */
-    protected $maxHeight = 1024;
-
-    /** @var  */
-    protected $tileResolver = null;
-
-    /** @var Canvas $canvas */
-    protected $canvas = null;
-
-    protected $tileSize = 256;
-    protected $tileSrcUrl = [
-        'mapnik' => 'http://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        'osmarenderer' => 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
-        'cycle' => 'http://a.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png',
-        'wikimedia-intl' => 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
-    ];
-
-    protected $tileDefaultSrc = 'mapnik';
-    protected $osmLogo = '../images/osm_logo.png';
-
-
-
-
-    protected $useTileCache = true;
-
-    protected $useMapCache = false;
-    protected $mapCacheBaseDir = '../cache/maps';
-    protected $mapCacheID = '';
-    protected $mapCacheFile = '';
-    protected $mapCacheExtension = 'png';
-
-    protected $zoom, $lat, $lon, $width, $height, $image, $maptype;
-    protected $centerX, $centerY, $offsetX, $offsetY;
-
-    protected $markers = [];
-    protected $polylines = [];
-
     public function __construct()
     {
         $this->zoom = 0;
