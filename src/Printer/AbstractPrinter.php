@@ -1,6 +1,6 @@
 <?php
 
-namespace StaticMapLite;
+namespace StaticMapLite\Printer;
 
 use StaticMapLite\Canvas\CanvasInterface;
 use StaticMapLite\TileResolver\TileResolverInterface;

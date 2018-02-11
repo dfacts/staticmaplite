@@ -1,6 +1,6 @@
 <?php
 
-namespace StaticMapLite;
+namespace StaticMapLite\Printer;
 
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\CanvasTilePainter\CanvasTilePainter;

@@ -1,6 +1,6 @@
 <?php
 
-namespace StaticMapLite;
+namespace StaticMapLite\Printer;
 
 interface PrinterInterface
 {
