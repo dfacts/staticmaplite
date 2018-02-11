@@ -4,13 +4,14 @@ namespace StaticMapLite\CanvasTilePainter;
 
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\TileResolver\TileResolver;
+use StaticMapLite\TileResolver\TileResolverInterface;
 
 class CanvasTilePainter
 {
     /** @var Canvas $canvas */
     protected $canvas;
 
-    /** @var TileResolver $tileResolver */
+    /** @var TileResolverInterface $tileResolver */
     protected $tileResolver;
 
     public function __construct()
@@ -51,11 +52,9 @@ class CanvasTilePainter
                 $tileData = $this->tileResolver->fetch($this->canvas->getZoom(), $x, $y);
 
                 if ($tileData) {
-                    $tileImage = imagecreatefromstring($tileData);
+                    $tileImage = $this->createTile($tileData);
                 } else {
-                    $tileImage = imagecreate($this->canvas->getTileSize(), $this->canvas->getTileSize());
-                    $color = imagecolorallocate($tileImage, 255, 255, 255);
-                    @imagestring($tileImage, 1, 127, 127, 'err', $color);
+                    $tileImage = $this->createErrorTile();
                 }
 
                 $destX = ($x - $startX) * $this->canvas->getTileSize() + $offsetX;
@@ -66,5 +65,19 @@ class CanvasTilePainter
         }
 
         return $this;
+    }
+
+    protected function createTile(string $tileData)
+    {
+        return imagecreatefromstring($tileData);
+    }
+
+    protected function createErrorTile()
+    {
+        $tileImage = imagecreate($this->canvas->getTileSize(), $this->canvas->getTileSize());
+        $color = imagecolorallocate($tileImage, 255, 255, 255);
+        @imagestring($tileImage, 1, 127, 127, 'err', $color);
+
+        return $tileImage;
     }
 }

@@ -4,11 +4,13 @@ namespace StaticMapLite\TileResolver;
 
 use Curl\Curl;
 
-class TileResolver
+class TileResolver implements TileResolverInterface
 {
-    protected $tileLayerUrl = null;
+    /** @var string $tileLayerUrl */
+    protected $tileLayerUrl;
 
-    protected $curl = null;
+    /** @var Curl $curl */
+    protected $curl;
 
     public function __construct()
     {

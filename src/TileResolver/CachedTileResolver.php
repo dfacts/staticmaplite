@@ -4,6 +4,7 @@ namespace StaticMapLite\TileResolver;
 
 class CachedTileResolver extends TileResolver
 {
+    /** @var string $tileCacheBaseDir */
     protected $tileCacheBaseDir = '../cache/tiles';
 
     public function fetch(int $zoom, int $x, int $y): string
@@ -25,12 +26,12 @@ class CachedTileResolver extends TileResolver
         return $tile;
     }
 
-    public function tileUrlToFilename(string $url): string
+    protected function tileUrlToFilename(string $url): string
     {
         return $this->tileCacheBaseDir . '/' . str_replace(['http://', 'https://'], '', $url);
     }
 
-    public function checkTileCache(string $url)
+    protected function checkTileCache(string $url)
     {
         $filename = $this->tileUrlToFilename($url);
 
@@ -41,7 +42,7 @@ class CachedTileResolver extends TileResolver
         return false;
     }
 
-    public function writeTileToCache($url, $data): CachedTileResolver
+    protected function writeTileToCache($url, $data): CachedTileResolver
     {
         $filename = $this->tileUrlToFilename($url);
 
@@ -52,7 +53,7 @@ class CachedTileResolver extends TileResolver
         return $this;
     }
 
-    public function mkdir_recursive($pathname, $mode): bool
+    protected function mkdir_recursive($pathname, $mode): bool
     {
         is_dir(dirname($pathname)) || $this->mkdir_recursive(dirname($pathname), $mode);
         return is_dir($pathname) || @mkdir($pathname, $mode);

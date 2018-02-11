@@ -7,15 +7,18 @@ use StaticMapLite\CanvasTilePainter\CanvasTilePainter;
 use StaticMapLite\Element\Marker\AbstractMarker;
 use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\ElementPrinter\Marker\ExtraMarkerPrinter;
-use StaticMapLite\ElementPrinter\Marker\MarkerPrinter;
 use StaticMapLite\ElementPrinter\Polyline\PolylinePrinter;
 use StaticMapLite\TileResolver\CachedTileResolver;
 
 class Printer
 {
+    /** @var int $maxWidth */
     protected $maxWidth = 1024;
+
+    /** @var int $maxHeight */
     protected $maxHeight = 1024;
 
+    /** @var  */
     protected $tileResolver = null;
 
     /** @var Canvas $canvas */
