@@ -9,6 +9,7 @@ use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\ElementPrinter\Marker\ExtraMarkerPrinter;
 use StaticMapLite\ElementPrinter\Polyline\PolylinePrinter;
 use StaticMapLite\TileResolver\CachedTileResolver;
+use StaticMapLite\Util;
 
 class Printer extends AbstractPrinter
 {
@@ -63,7 +64,7 @@ class Printer extends AbstractPrinter
         return $this;
     }
 
-    public function setZoom(int $zoom): Printer
+    public function setZoom(int $zoom): AbstractPrinter
     {
         $this->zoom = $zoom;
 
@@ -74,7 +75,7 @@ class Printer extends AbstractPrinter
         return $this;
     }
 
-    public function setMapType(string $mapType): Printer
+    public function setMapType(string $mapType): AbstractPrinter
     {
         $this->maptype = $mapType;
 

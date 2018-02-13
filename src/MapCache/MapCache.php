@@ -2,21 +2,37 @@
 
 namespace StaticMapLite\MapCache;
 
-use StaticMapLite\Printer;
+use StaticMapLite\Printer\PrinterInterface;
 
 class MapCache
 {
-    /** @var Printer $printer */
+    /** @var PrinterInterface $printer */
     protected $printer;
 
-    public function __construct(Printer $printer)
-    {
+    /** @var bool $useMapCache */
+    protected $useMapCache = false;
 
+    /** @var string $mapCacheBaseDir */
+    protected $mapCacheBaseDir = '../cache/maps';
+
+    /** @var string $mapCacheID */
+    protected $mapCacheID = '';
+
+    /** @var string $mapCacheFile */
+    protected $mapCacheFile = '';
+
+    /** @var string $mapCacheExtension */
+    protected $mapCacheExtension = 'png';
+
+    public function __construct(PrinterInterface $printer)
+    {
+        $this->printer = $printer;
     }
 
     public function checkMapCache(): bool
     {
         $this->mapCacheID = md5($this->serializeParams());
+
         $filename = $this->mapCacheIDToFilename();
 
         return file_exists($filename);
@@ -41,6 +57,9 @@ class MapCache
         if (!$this->mapCacheFile) {
             $this->mapCacheFile = $this->mapCacheBaseDir . "/" . $this->maptype . "/" . $this->zoom . "/cache_" . substr($this->mapCacheID, 0, 2) . "/" . substr($this->mapCacheID, 2, 2) . "/" . substr($this->mapCacheID, 4);
         }
-        return $this->mapCacheFile . "." . $this->mapCacheExtension;
+
+        $filename = sprintf('%s.%s', $this->mapCacheFile, $this->mapCacheExtension);
+
+        return $filename;
     }
 }
