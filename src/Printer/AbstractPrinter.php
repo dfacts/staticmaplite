@@ -5,7 +5,7 @@ namespace StaticMapLite\Printer;
 use StaticMapLite\Canvas\CanvasInterface;
 use StaticMapLite\TileResolver\TileResolverInterface;
 
-abstract class AbstractPrinter
+abstract class AbstractPrinter implements PrinterInterface
 {
     /** @var int $maxWidth */
     protected $maxWidth = 1024;
@@ -72,7 +72,7 @@ abstract class AbstractPrinter
         return $this->maxWidth;
     }
 
-    public function setMaxWidth(int $maxWidth): AbstractPrinter
+    public function setMaxWidth(int $maxWidth): PrinterInterface
     {
         $this->maxWidth = $maxWidth;
 
@@ -84,7 +84,7 @@ abstract class AbstractPrinter
         return $this->maxHeight;
     }
 
-    public function setMaxHeight(int $maxHeight): AbstractPrinter
+    public function setMaxHeight(int $maxHeight): PrinterInterface
     {
         $this->maxHeight = $maxHeight;
 
@@ -96,7 +96,7 @@ abstract class AbstractPrinter
         return $this->tileResolver;
     }
 
-    public function setTileResolver(TileResolverInterface $tileResolver): AbstractPrinter
+    public function setTileResolver(TileResolverInterface $tileResolver): PrinterInterface
     {
         $this->tileResolver = $tileResolver;
 
@@ -108,7 +108,7 @@ abstract class AbstractPrinter
         return $this->canvas;
     }
 
-    public function setCanvas(CanvasInterface $canvas): AbstractPrinter
+    public function setCanvas(CanvasInterface $canvas): PrinterInterface
     {
         $this->canvas = $canvas;
 
@@ -120,7 +120,7 @@ abstract class AbstractPrinter
         return $this->tileSize;
     }
 
-    public function setTileSize(int $tileSize): AbstractPrinter
+    public function setTileSize(int $tileSize): PrinterInterface
     {
         $this->tileSize = $tileSize;
 
@@ -132,7 +132,7 @@ abstract class AbstractPrinter
         return $this->tileSrcUrl;
     }
 
-    public function setTileSrcUrl(array $tileSrcUrl): AbstractPrinter
+    public function setTileSrcUrl(array $tileSrcUrl): PrinterInterface
     {
         $this->tileSrcUrl = $tileSrcUrl;
 
@@ -144,7 +144,7 @@ abstract class AbstractPrinter
         return $this->tileDefaultSrc;
     }
 
-    public function setTileDefaultSrc(string $tileDefaultSrc): AbstractPrinter
+    public function setTileDefaultSrc(string $tileDefaultSrc): PrinterInterface
     {
         $this->tileDefaultSrc = $tileDefaultSrc;
 
@@ -156,7 +156,7 @@ abstract class AbstractPrinter
         return $this->osmLogo;
     }
 
-    public function setOsmLogo(string $osmLogo): AbstractPrinter
+    public function setOsmLogo(string $osmLogo): PrinterInterface
     {
         $this->osmLogo = $osmLogo;
 
@@ -168,7 +168,7 @@ abstract class AbstractPrinter
         return $this->useTileCache;
     }
 
-    public function setUseTileCache(bool $useTileCache): AbstractPrinter
+    public function setUseTileCache(bool $useTileCache): PrinterInterface
     {
         $this->useTileCache = $useTileCache;
 
@@ -180,7 +180,7 @@ abstract class AbstractPrinter
         return $this->zoom;
     }
 
-    public function setZoom(int $zoom): AbstractPrinter
+    public function setZoom(int $zoom): PrinterInterface
     {
         $this->zoom = $zoom;
 
@@ -192,7 +192,7 @@ abstract class AbstractPrinter
         return $this->lat;
     }
 
-    public function setLat(float $lat): AbstractPrinter
+    public function setLat(float $lat): PrinterInterface
     {
         $this->lat = $lat;
 
@@ -204,7 +204,7 @@ abstract class AbstractPrinter
         return $this->lon;
     }
 
-    public function setLon(float $lon): AbstractPrinter
+    public function setLon(float $lon): PrinterInterface
     {
         $this->lon = $lon;
 
@@ -216,7 +216,7 @@ abstract class AbstractPrinter
         return $this->width;
     }
 
-    public function setWidth($width): AbstractPrinter
+    public function setWidth($width): PrinterInterface
     {
         $this->width = $width;
 
@@ -228,7 +228,7 @@ abstract class AbstractPrinter
         return $this->height;
     }
 
-    public function setHeight($height): AbstractPrinter
+    public function setHeight($height): PrinterInterface
     {
         $this->height = $height;
 
@@ -240,7 +240,7 @@ abstract class AbstractPrinter
         return $this->image;
     }
 
-    public function setImage($image): AbstractPrinter
+    public function setImage($image): PrinterInterface
     {
         $this->image = $image;
 
@@ -252,7 +252,7 @@ abstract class AbstractPrinter
         return $this->maptype;
     }
 
-    public function setMaptype(string $maptype): AbstractPrinter
+    public function setMaptype(string $maptype): PrinterInterface
     {
         $this->maptype = $maptype;
 
@@ -264,7 +264,7 @@ abstract class AbstractPrinter
         return $this->centerX;
     }
 
-    public function setCenterX($centerX): AbstractPrinter
+    public function setCenterX($centerX): PrinterInterface
     {
         $this->centerX = $centerX;
 
@@ -276,7 +276,7 @@ abstract class AbstractPrinter
         return $this->centerY;
     }
 
-    public function setCenterY(int $centerY): AbstractPrinter
+    public function setCenterY(int $centerY): PrinterInterface
     {
         $this->centerY = $centerY;
 
@@ -288,7 +288,7 @@ abstract class AbstractPrinter
         return $this->offsetX;
     }
 
-    public function setOffsetX(int $offsetX): AbstractPrinter
+    public function setOffsetX(int $offsetX): PrinterInterface
     {
         $this->offsetX = $offsetX;
 
@@ -300,7 +300,7 @@ abstract class AbstractPrinter
         return $this->offsetY;
     }
 
-    public function setOffsetY(int $offsetY): AbstractPrinter
+    public function setOffsetY(int $offsetY): PrinterInterface
     {
         $this->offsetY = $offsetY;
 
@@ -312,7 +312,7 @@ abstract class AbstractPrinter
         return $this->markers;
     }
 
-    public function setMarkers(array $markers): AbstractPrinter
+    public function setMarkers(array $markers): PrinterInterface
     {
         $this->markers = $markers;
 
@@ -324,7 +324,7 @@ abstract class AbstractPrinter
         return $this->polylines;
     }
 
-    public function setPolylines(array $polylines): AbstractPrinter
+    public function setPolylines(array $polylines): PrinterInterface
     {
         $this->polylines = $polylines;
 
