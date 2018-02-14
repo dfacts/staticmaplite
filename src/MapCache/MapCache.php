@@ -34,6 +34,7 @@ class MapCache
 
     public function checkMapCache(): bool
     {
+        return false;
         $this->mapCacheID = md5($this->serializeParams());
 
         $filename = $this->getFilename();

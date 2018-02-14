@@ -2,8 +2,11 @@
 
 namespace StaticMapLite\Canvas;
 
+use Imagine\Image\ImageInterface;
+
 class Canvas implements CanvasInterface
 {
+    /** @var ImageInterface $image */
     protected $image = null;
 
     /** @var int $tileSize */
@@ -34,10 +37,12 @@ class Canvas implements CanvasInterface
         $this->centerX = $centerX;
         $this->centerY = $centerY;
 
-        $this->image = imagecreatetruecolor($this->width, $this->height);
+        $imagine = new \Imagine\Gd\Imagine();
+        $size = new \Imagine\Image\Box($this->width, $this->height);
+        $this->image = $imagine->create($size);
     }
 
-    public function getImage()
+    public function getImage(): ImageInterface
     {
         return $this->image;
     }
