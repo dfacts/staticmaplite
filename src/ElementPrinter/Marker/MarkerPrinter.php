@@ -4,10 +4,10 @@ namespace StaticMapLite\ElementPrinter\Marker;
 
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\Element\Marker\AbstractMarker;
-use StaticMapLite\Element\Marker\ExtraMarker;
 use StaticMapLite\Element\Marker\Marker;
 use StaticMapLite\Util;
 
+/** @deprecated */
 class MarkerPrinter
 {
     /** @var Marker $marker */

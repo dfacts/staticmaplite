@@ -2,6 +2,7 @@
 
 namespace StaticMapLite\Element\Marker;
 
+/** @deprecated  */
 class Marker extends AbstractMarker
 {
     protected $markerType;
