@@ -9,6 +9,8 @@ use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\ElementPrinter\Marker\ExtraMarkerPrinter;
 use StaticMapLite\ElementPrinter\Polyline\PolylinePrinter;
 use StaticMapLite\MapCache\MapCache;
+use StaticMapLite\Output\CacheOutput;
+use StaticMapLite\Output\ImageOutput;
 use StaticMapLite\TileResolver\CachedTileResolver;
 use StaticMapLite\Util;
 
@@ -173,23 +175,28 @@ class Printer extends AbstractPrinter
     public function showMap()
     {
         if ($this->mapCache) {
-            // use map cache, so check cache for map
             if (!$this->mapCache->checkMapCache()) {
-                // map is not in cache, needs to be build
                 $this->makeMap();
+
                 $this->mapCache->cache($this->canvas);
             } else {
-                // map is in cache
-                $this->sendHeader();
-                return file_get_contents($this->mapCache->getFilename());
+                $output = new CacheOutput();
+                $output
+                    ->setFilename($this->mapCache->getFilename())
+                    ->sendHeader()
+                    ->sendImage()
+                ;
             }
-
         } else {
             // no cache, make map, send headers and deliver png
             $this->makeMap();
-            $this->sendHeader();
-            return imagepng($this->canvas->getImage());
 
+            $output = new ImageOutput();
+            $output
+                ->setImage($this->image)
+                ->sendHeader()
+                ->sendImage()
+            ;
         }
     }
 }

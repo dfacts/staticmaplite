@@ -3,6 +3,8 @@
 namespace StaticMapLite\MapCache;
 
 use StaticMapLite\Canvas\CanvasInterface;
+use StaticMapLite\Output\CacheOutput;
+use StaticMapLite\Output\OutputInterface;
 use StaticMapLite\Printer\PrinterInterface;
 
 class MapCache
@@ -32,7 +34,6 @@ class MapCache
 
     public function checkMapCache(): bool
     {
-        return false;
         $this->mapCacheID = md5($this->serializeParams());
 
         $filename = $this->getFilename();
@@ -73,21 +74,22 @@ class MapCache
         return $filename;
     }
 
-    public function cache(CanvasInterface $canvas)
+    public function cache(CanvasInterface $canvas): void
     {
         $this->mkdir_recursive(dirname($this->mapCacheIDToFilename()), 0777);
         imagepng($canvas->getImage(), $this->mapCacheIDToFilename(), 9);
-        $this->sendHeader();
-        if (file_exists($this->mapCacheIDToFilename())) {
-            return file_get_contents($this->mapCacheIDToFilename());
-        } else {
-            return imagepng($canvas->getImage());
-        }
+
+        $output = new CacheOutput();
+        $output->setFilename($this->mapCacheIDToFilename())
+            ->sendHeader()
+            ->sendImage()
+        ;
     }
 
-    public function mkdir_recursive($pathname, $mode)
+    public function mkdir_recursive($pathname, $mode): bool
     {
         is_dir(dirname($pathname)) || $this->mkdir_recursive(dirname($pathname), $mode);
+
         return is_dir($pathname) || @mkdir($pathname, $mode);
     }
 
@@ -95,14 +97,4 @@ class MapCache
     {
         return $this->mapCacheIDToFilename();
     }
-
-    public function sendHeader()
-    {
-        header('Content-Type: image/png');
-        $expires = 60 * 60 * 24 * 14;
-        header("Pragma: public");
-        header("Cache-Control: maxage=" . $expires);
-        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
-    }
-
 }
