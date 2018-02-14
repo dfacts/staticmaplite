@@ -2,12 +2,14 @@
 
 namespace StaticMapLite\TileResolver;
 
+use Imagine\Image\ImageInterface;
+
 class CachedTileResolver extends TileResolver
 {
     /** @var string $tileCacheBaseDir */
     protected $tileCacheBaseDir = '../cache/tiles';
 
-    public function fetch(int $zoom, int $x, int $y): string
+    public function fetch(int $zoom, int $x, int $y): ImageInterface
     {
         $url = $this->resolve($zoom, $x, $y);
 
@@ -31,24 +33,26 @@ class CachedTileResolver extends TileResolver
         return $this->tileCacheBaseDir . '/' . str_replace(['http://', 'https://'], '', $url);
     }
 
-    protected function checkTileCache(string $url)
+    protected function checkTileCache(string $url): ?ImageInterface
     {
         $filename = $this->tileUrlToFilename($url);
 
         if (file_exists($filename)) {
-            return file_get_contents($filename);
+            $tileImagine = $this->imagine->open($filename);
+
+            return $tileImagine;
         }
 
-        return false;
+        return null;
     }
 
-    protected function writeTileToCache($url, $data): CachedTileResolver
+    protected function writeTileToCache($url, ImageInterface $tileImage): CachedTileResolver
     {
         $filename = $this->tileUrlToFilename($url);
 
         $this->mkdir_recursive(dirname($filename), 0777);
 
-        file_put_contents($filename, $data);
+        $tileImage->save($filename);
 
         return $this;
     }
@@ -56,6 +60,7 @@ class CachedTileResolver extends TileResolver
     protected function mkdir_recursive($pathname, $mode): bool
     {
         is_dir(dirname($pathname)) || $this->mkdir_recursive(dirname($pathname), $mode);
+
         return is_dir($pathname) || @mkdir($pathname, $mode);
     }
 }

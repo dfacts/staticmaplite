@@ -2,39 +2,26 @@
 
 namespace StaticMapLite\TileResolver;
 
-use Curl\Curl;
+use Imagine\Image\ImageInterface;
 
-class TileResolver implements TileResolverInterface
+class TileResolver extends AbstractTileResolver
 {
-    /** @var string $tileLayerUrl */
-    protected $tileLayerUrl;
-
-    /** @var Curl $curl */
-    protected $curl;
-
-    public function __construct()
-    {
-        $this->curl = new Curl();
-    }
-
-    public function setTileLayerUrl(string $tileLayerUrl): TileResolver
-    {
-        $this->tileLayerUrl = $tileLayerUrl;
-
-        return $this;
-    }
-
     public function resolve(int $zoom, int $x, int $y): string
     {
         return str_replace(['{z}', '{x}', '{y}'], [$zoom, $x, $y], $this->tileLayerUrl);
     }
 
-    public function fetch(int $zoom, int $x, int $y): string
+    public function fetch(int $zoom, int $x, int $y): ImageInterface
     {
         $url = $this->resolve($zoom, $x, $y);
 
         $this->curl->get($url);
 
-        return $this->curl->response;
+        $image = $this
+            ->imagine
+            ->load($this->curl->response)
+        ;
+
+        return $image;
     }
 }

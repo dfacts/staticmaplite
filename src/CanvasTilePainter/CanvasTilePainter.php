@@ -2,8 +2,8 @@
 
 namespace StaticMapLite\CanvasTilePainter;
 
+use Imagine\Image\Point;
 use StaticMapLite\Canvas\Canvas;
-use StaticMapLite\TileResolver\TileResolver;
 use StaticMapLite\TileResolver\TileResolverInterface;
 
 class CanvasTilePainter
@@ -26,7 +26,7 @@ class CanvasTilePainter
         return $this;
     }
 
-    public function setTileResolver(TileResolver $tileResolver): CanvasTilePainter
+    public function setTileResolver(TileResolverInterface $tileResolver): CanvasTilePainter
     {
         $this->tileResolver = $tileResolver;
 
@@ -49,35 +49,16 @@ class CanvasTilePainter
 
         for ($x = $startX; $x <= $endX; $x++) {
             for ($y = $startY; $y <= $endY; $y++) {
-                $tileData = $this->tileResolver->fetch($this->canvas->getZoom(), $x, $y);
-
-                if ($tileData) {
-                    $tileImage = $this->createTile($tileData);
-                } else {
-                    $tileImage = $this->createErrorTile();
-                }
+                $tileImage = $this->tileResolver->fetch($this->canvas->getZoom(), $x, $y);
 
                 $destX = ($x - $startX) * $this->canvas->getTileSize() + $offsetX;
                 $destY = ($y - $startY) * $this->canvas->getTileSize() + $offsetY;
 
-                imagecopy($this->canvas->getImage(), $tileImage, $destX, $destY, 0, 0, $this->canvas->getTileSize(), $this->canvas->getTileSize());
+                $point = new Point($destX, $destY);
+                $tileImage->paste($this->canvas->getImage(), $point);
             }
         }
 
         return $this;
-    }
-
-    protected function createTile(string $tileData)
-    {
-        return imagecreatefromstring($tileData);
-    }
-
-    protected function createErrorTile()
-    {
-        $tileImage = imagecreate($this->canvas->getTileSize(), $this->canvas->getTileSize());
-        $color = imagecolorallocate($tileImage, 255, 255, 255);
-        @imagestring($tileImage, 1, 127, 127, 'err', $color);
-
-        return $tileImage;
     }
 }
