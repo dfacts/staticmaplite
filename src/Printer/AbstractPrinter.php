@@ -38,9 +38,6 @@ abstract class AbstractPrinter implements PrinterInterface
     /** @var string $tileDefaultSrc */
     protected $tileDefaultSrc = 'mapnik';
 
-    /** @var string $osmLogo */
-    protected $osmLogo = '../images/osm_logo.png';
-
     /** @var bool $useTileCache */
     protected $useTileCache = true;
 

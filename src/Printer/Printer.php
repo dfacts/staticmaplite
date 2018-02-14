@@ -4,6 +4,7 @@ namespace StaticMapLite\Printer;
 
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\CanvasTilePainter\CanvasTilePainter;
+use StaticMapLite\CopyrightPrinter\CopyrightPrinter;
 use StaticMapLite\Element\Marker\AbstractMarker;
 use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\ElementPrinter\Marker\ExtraMarkerPrinter;
@@ -88,16 +89,18 @@ class Printer extends AbstractPrinter
         return $this;
     }
 
-    public function initCoords()
+    public function initCoords(): Printer
     {
         $this->centerX = Util::lonToTile($this->longitude, $this->zoom);
         $this->centerY = Util::latToTile($this->latitude, $this->zoom);
 
         $this->offsetX = floor((floor($this->centerX) - $this->centerX) * $this->tileSize);
         $this->offsetY = floor((floor($this->centerY) - $this->centerY) * $this->tileSize);
+        
+        return $this;
     }
 
-    public function createBaseMap()
+    public function createBaseMap(): Printer
     {
         $this->canvas = new Canvas(
             $this->width,
@@ -113,9 +116,11 @@ class Printer extends AbstractPrinter
             ->setTileResolver($this->tileResolver)
             ->paint()
         ;
+
+        return $this;
     }
 
-    public function placeMarkers()
+    public function placeMarkers(): Printer
     {
         $printer = new ExtraMarkerPrinter();
 
@@ -125,9 +130,11 @@ class Printer extends AbstractPrinter
                 ->paint($this->canvas)
             ;
         }
+
+        return $this;
     }
 
-    public function placePolylines()
+    public function placePolylines(): Printer
     {
         $printer = new PolylinePrinter();
 
@@ -138,25 +145,14 @@ class Printer extends AbstractPrinter
                 ->paint($this->canvas)
             ;
         }
+
+        return $this;
     }
 
-    public function copyrightNotice()
-    {
-        $logoImg = imagecreatefrompng($this->osmLogo);
-        imagecopy($this->canvas->getImage(), $logoImg, imagesx($this->canvas->getImage()) - imagesx($logoImg), imagesy($this->canvas->getImage()) - imagesy($logoImg), 0, 0, imagesx($logoImg), imagesy($logoImg));
-    }
-    public function sendHeader()
-    {
-        header('Content-Type: image/png');
-        $expires = 60 * 60 * 24 * 14;
-        header("Pragma: public");
-        header("Cache-Control: maxage=" . $expires);
-        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
-    }
-
-    public function makeMap()
+    public function makeMap(): Printer
     {
         $this->initCoords();
+
         $this->createBaseMap();
 
         if (count($this->polylines)) {
@@ -167,9 +163,20 @@ class Printer extends AbstractPrinter
             $this->placeMarkers();
         }
 
-        if ($this->osmLogo) {
-            $this->copyrightNotice();
-        }
+        $this->printCopyright();
+
+        return $this;
+    }
+
+    protected function printCopyright(): Printer
+    {
+        $cp = new CopyrightPrinter();
+        $cp
+            ->setCanvas($this->canvas)
+            ->printCopyright()
+        ;
+
+        return $this;
     }
 
     public function showMap()
@@ -188,7 +195,6 @@ class Printer extends AbstractPrinter
                 ;
             }
         } else {
-            // no cache, make map, send headers and deliver png
             $this->makeMap();
 
             $output = new ImageOutput();

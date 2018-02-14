@@ -74,7 +74,7 @@ if ($polylines) {
     }
 }
 
-print $printer->showMap();
+$printer->showMap();
 
 
 
