@@ -8,6 +8,7 @@ use StaticMapLite\Element\Marker\AbstractMarker;
 use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\ElementPrinter\Marker\ExtraMarkerPrinter;
 use StaticMapLite\ElementPrinter\Polyline\PolylinePrinter;
+use StaticMapLite\MapCache\MapCache;
 use StaticMapLite\TileResolver\CachedTileResolver;
 use StaticMapLite\Util;
 
@@ -16,12 +17,13 @@ class Printer extends AbstractPrinter
     public function __construct()
     {
         $this->zoom = 0;
-        $this->lat = 0;
-        $this->lon = 0;
+        $this->latitude = 0;
+        $this->longitude = 0;
         $this->width = 500;
         $this->height = 350;
         $this->maptype = $this->tileDefaultSrc;
 
+        $this->mapCache = new MapCache($this);
         $this->tileResolver = new CachedTileResolver();
         $this->tileResolver->setTileLayerUrl($this->tileSrcUrl[$this->maptype]);
     }
@@ -42,8 +44,8 @@ class Printer extends AbstractPrinter
 
     public function setCenter(float $latitude, float $longitude): Printer
     {
-        $this->lat = $latitude;
-        $this->lon = $longitude;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
 
         return $this;
     }
@@ -64,7 +66,7 @@ class Printer extends AbstractPrinter
         return $this;
     }
 
-    public function setZoom(int $zoom): AbstractPrinter
+    public function setZoom(int $zoom): PrinterInterface
     {
         $this->zoom = $zoom;
 
@@ -75,7 +77,7 @@ class Printer extends AbstractPrinter
         return $this;
     }
 
-    public function setMapType(string $mapType): AbstractPrinter
+    public function setMapType(string $mapType): PrinterInterface
     {
         $this->maptype = $mapType;
 
@@ -86,8 +88,8 @@ class Printer extends AbstractPrinter
 
     public function initCoords()
     {
-        $this->centerX = Util::lonToTile($this->lon, $this->zoom);
-        $this->centerY = Util::latToTile($this->lat, $this->zoom);
+        $this->centerX = Util::lonToTile($this->longitude, $this->zoom);
+        $this->centerY = Util::latToTile($this->latitude, $this->zoom);
 
         $this->offsetX = floor((floor($this->centerX) - $this->centerX) * $this->tileSize);
         $this->offsetY = floor((floor($this->centerY) - $this->centerY) * $this->tileSize);
@@ -136,32 +138,11 @@ class Printer extends AbstractPrinter
         }
     }
 
-    public function checkMapCache()
-    {
-        $this->mapCacheID = md5($this->serializeParams());
-        $filename = $this->mapCacheIDToFilename();
-        if (file_exists($filename)) return true;
-    }
-
-    public function serializeParams()
-    {
-        return join("&", array($this->zoom, $this->lat, $this->lon, $this->width, $this->height, serialize($this->markers), $this->maptype));
-    }
-
-    public function mapCacheIDToFilename()
-    {
-        if (!$this->mapCacheFile) {
-            $this->mapCacheFile = $this->mapCacheBaseDir . "/" . $this->maptype . "/" . $this->zoom . "/cache_" . substr($this->mapCacheID, 0, 2) . "/" . substr($this->mapCacheID, 2, 2) . "/" . substr($this->mapCacheID, 4);
-        }
-        return $this->mapCacheFile . "." . $this->mapCacheExtension;
-    }
-
     public function copyrightNotice()
     {
         $logoImg = imagecreatefrompng($this->osmLogo);
         imagecopy($this->canvas->getImage(), $logoImg, imagesx($this->canvas->getImage()) - imagesx($logoImg), imagesy($this->canvas->getImage()) - imagesy($logoImg), 0, 0, imagesx($logoImg), imagesy($logoImg));
     }
-
     public function sendHeader()
     {
         header('Content-Type: image/png');
@@ -191,23 +172,16 @@ class Printer extends AbstractPrinter
 
     public function showMap()
     {
-        if ($this->useMapCache) {
+        if ($this->mapCache) {
             // use map cache, so check cache for map
-            if (!$this->checkMapCache()) {
+            if (!$this->mapCache->checkMapCache()) {
                 // map is not in cache, needs to be build
                 $this->makeMap();
-                $this->mkdir_recursive(dirname($this->mapCacheIDToFilename()), 0777);
-                imagepng($this->canvas->getImage(), $this->mapCacheIDToFilename(), 9);
-                $this->sendHeader();
-                if (file_exists($this->mapCacheIDToFilename())) {
-                    return file_get_contents($this->mapCacheIDToFilename());
-                } else {
-                    return imagepng($this->canvas->getImage());
-                }
+                $this->mapCache->cache($this->canvas);
             } else {
                 // map is in cache
                 $this->sendHeader();
-                return file_get_contents($this->mapCacheIDToFilename());
+                return file_get_contents($this->mapCache->getFilename());
             }
 
         } else {
@@ -217,11 +191,5 @@ class Printer extends AbstractPrinter
             return imagepng($this->canvas->getImage());
 
         }
-    }
-
-    public function mkdir_recursive($pathname, $mode)
-    {
-        is_dir(dirname($pathname)) || $this->mkdir_recursive(dirname($pathname), $mode);
-        return is_dir($pathname) || @mkdir($pathname, $mode);
     }
 }

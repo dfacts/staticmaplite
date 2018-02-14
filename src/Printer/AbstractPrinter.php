@@ -3,10 +3,15 @@
 namespace StaticMapLite\Printer;
 
 use StaticMapLite\Canvas\CanvasInterface;
+use StaticMapLite\MapCache\MapCache;
+use StaticMapLite\MapCache\MapCacheInterface;
 use StaticMapLite\TileResolver\TileResolverInterface;
 
 abstract class AbstractPrinter implements PrinterInterface
 {
+    /** @var MapCacheInterface $mapCache */
+    protected $mapCache;
+
     /** @var int $maxWidth */
     protected $maxWidth = 1024;
 
@@ -39,14 +44,19 @@ abstract class AbstractPrinter implements PrinterInterface
     /** @var bool $useTileCache */
     protected $useTileCache = true;
 
+    /** @var int $zoom */
     protected $zoom;
 
-    protected $lat;
+    /** @var float $latitude */
+    protected $latitude;
 
-    protected $lon;
+    /** @var float $longitude */
+    protected $longitude;
 
+    /** @var int $width */
     protected $width;
 
+    /** @var int $height */
     protected $height;
 
     protected $image;
@@ -187,26 +197,26 @@ abstract class AbstractPrinter implements PrinterInterface
         return $this;
     }
 
-    public function getLat(): float
+    public function getLatitude(): float
     {
-        return $this->lat;
+        return $this->latitude;
     }
 
-    public function setLat(float $lat): PrinterInterface
+    public function setLatitude(float $latitude): PrinterInterface
     {
-        $this->lat = $lat;
+        $this->latitude = $latitude;
 
         return $this;
     }
 
-    public function getLon(): float
+    public function getLongitude(): float
     {
-        return $this->lon;
+        return $this->longitude;
     }
 
-    public function setLon(float $lon): PrinterInterface
+    public function setLongitude(float $longitude): PrinterInterface
     {
-        $this->lon = $lon;
+        $this->longitude = $longitude;
 
         return $this;
     }
