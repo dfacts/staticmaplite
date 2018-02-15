@@ -54,8 +54,10 @@ class CanvasTilePainter
                 $destX = ($x - $startX) * $this->canvas->getTileSize() + $offsetX;
                 $destY = ($y - $startY) * $this->canvas->getTileSize() + $offsetY;
 
-                $point = new Point($destX, $destY);
-                $tileImage->paste($this->canvas->getImage(), $point);
+                if ($destX > 0 && $destY > 0) {
+                    $point = new Point($destX, $destY);
+                    $tileImage->paste($this->canvas->getImage(), $point);
+                }
             }
         }
 
