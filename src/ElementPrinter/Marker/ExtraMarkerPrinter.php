@@ -75,7 +75,9 @@ class ExtraMarkerPrinter
 
         $point = new Point($destX, $destY);
 
-        $markerImage->paste($canvas->getImage(), $point);
+        if ($canvas->getImage()->getSize()->contains($markerImage->getSize(), $point)) {
+            $markerImage->paste($canvas->getImage(), $point);
+        }
 
         return $this;
     }
