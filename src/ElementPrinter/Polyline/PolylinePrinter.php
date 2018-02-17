@@ -2,6 +2,7 @@
 
 namespace StaticMapLite\ElementPrinter\Polyline;
 
+use Imagine\Image\Point;
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\Element\Polyline\Polyline;
 use StaticMapLite\Util;
@@ -25,41 +26,47 @@ class PolylinePrinter
 
     public function paint(Canvas $canvas): PolylinePrinter
     {
-        $polylineList = \Polyline::decode($this->polyline->getPolyline());
+        $pointList = $this->convertPolylineToPointList($canvas);
 
-        $sourceLatitude = null;
-        $sourceLongitude = null;
-        $destinationLatitude = null;
-        $destinationLongitude = null;
+        $color = $canvas->getImage()->palette()->color('f00');
 
-        $color = imagecolorallocate($canvas->getImage(), $this->polyline->getColorRed(), $this->polyline->getColorGreen(), $this->polyline->getColorBlue());
-        imagesetthickness($canvas->getImage(), 5);
-        //imageantialias($this->image, true);
+        $startPoint = null;
+        $endPoint = null;
 
-        while (!empty($polylineList)) {
-            if (!$sourceLatitude) {
-                $sourceLatitude = array_shift($polylineList);
+        while (!empty($pointList)) {
+            if (!$startPoint) {
+                $startPoint = array_pop($pointList);
             }
 
-            if (!$sourceLongitude) {
-                $sourceLongitude = array_shift($polylineList);
-            }
+            $endPoint = array_pop($pointList);
 
-            $sourceX = floor(($canvas->getWidth() / 2) - $canvas->getTileSize() * ($canvas->getCenterX() - Util::lonToTile($sourceLongitude, $canvas->getZoom())));
-            $sourceY = floor(($canvas->getHeight() / 2) - $canvas->getTileSize() * ($canvas->getCenterY() - Util::latToTile($sourceLatitude, $canvas->getZoom())));
+            $canvas->getImage()->draw()->line($startPoint, $endPoint, $color, 3);
 
-            $destinationLatitude = array_shift($polylineList);
-            $destinationLongitude = array_shift($polylineList);
-
-            $destinationX = floor(($canvas->getWidth() / 2) - $canvas->getTileSize() * ($canvas->getCenterX() - Util::lonToTile($destinationLongitude, $canvas->getZoom())));
-            $destinationY = floor(($canvas->getHeight() / 2) - $canvas->getTileSize() * ($canvas->getCenterY() - Util::latToTile($destinationLatitude, $canvas->getZoom())));
-
-            imageline($canvas->getImage() , $sourceX, $sourceY , $destinationX, $destinationY, $color);
-
-            $sourceLatitude = $destinationLatitude;
-            $sourceLongitude = $destinationLongitude;
+            $startPoint = $endPoint;
         }
 
+
         return $this;
+    }
+
+    protected function convertPolylineToPointList(Canvas $canvas): array
+    {
+        $polylineList = \Polyline::decode($this->polyline->getPolyline());
+
+        $pointList = [];
+
+        while (!empty($polylineList)) {
+            $latitude = array_shift($polylineList);
+            $longitude = array_shift($polylineList);
+
+            $sourceX = floor(($canvas->getWidth() / 2) - $canvas->getTileSize() * ($canvas->getCenterX() - Util::lonToTile($longitude, $canvas->getZoom())));
+            $sourceY = floor(($canvas->getHeight() / 2) - $canvas->getTileSize() * ($canvas->getCenterY() - Util::latToTile($latitude, $canvas->getZoom())));
+
+            $point = new Point($sourceX, $sourceY);
+
+            $pointList[] = $point;
+        }
+
+        return $pointList;
     }
 }
