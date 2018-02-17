@@ -10,6 +10,9 @@ use StaticMapLite\Util;
 
 class PolylinePrinter
 {
+    /** @var int $thickness */
+    protected $thickness = 3;
+
     /** @var Polyline $polyline */
     protected $polyline = null;
 
@@ -40,11 +43,11 @@ class PolylinePrinter
 
             $endPoint = array_pop($pointList);
 
-            $canvas->getImage()->draw()->line($startPoint, $endPoint, $color, 3);
+            $canvas->getImage()->draw()->line($startPoint, $endPoint, $color, $this->thickness);
 
             $startPoint = $endPoint;
         }
-        
+
         return $this;
     }
 

@@ -4,9 +4,16 @@ namespace StaticMapLite\Element\Polyline;
 
 class Polyline
 {
+    /** @var string $polyline */
     protected $polyline = null;
+
+    /** @var int $colorRed */
     protected $colorRed = 0;
+
+    /** @var int $colorGreen */
     protected $colorGreen = 0;
+
+    /** @var int $colorBlue */
     protected $colorBlue = 0;
 
     public function __construct(string $polyline, int $colorRed = 0, int $colorGreen = 0, int $colorBlue = 0)
