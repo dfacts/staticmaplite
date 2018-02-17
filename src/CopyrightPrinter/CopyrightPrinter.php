@@ -2,12 +2,14 @@
 
 namespace StaticMapLite\CopyrightPrinter;
 
+use Imagine\Gd\Imagine;
+use Imagine\Image\Point;
 use StaticMapLite\Canvas\CanvasInterface;
 
 class CopyrightPrinter implements CopyrightPrinterInterface
 {
-    /** @var string $osmLogo */
-    protected $osmLogo = '../images/osm_logo.png';
+    /** @var string $copyrightPath */
+    protected $copyrightPath = '../images/osm_logo.png';
 
     /** @var CanvasInterface $canvas */
     protected $canvas;
@@ -21,21 +23,12 @@ class CopyrightPrinter implements CopyrightPrinterInterface
 
     public function printCopyright(): CopyrightPrinterInterface
     {
-        $logo = imagecreatefrompng($this->osmLogo);
+        $imagine = new Imagine();
+        $copyrightImage = $imagine->open($this->copyrightPath);
 
-        $logoWidth = imagesx($logo);
-        $logoHeight = imagesy($logo);
+        $point = new Point(0,0);
 
-        imagecopy(
-            $this->canvas->getImage(),
-            $logo,
-            imagesx($this->canvas->getImage()) - $logoWidth,
-            imagesy($this->canvas->getImage()) - $logoHeight,
-            0,
-            0,
-            $logoWidth,
-            $logoHeight
-        );
+        $this->canvas->getImage()->paste($copyrightImage, $point);
 
         return $this;
     }
