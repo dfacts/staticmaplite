@@ -22,6 +22,12 @@ class ExtraMarkerPrinter
     /** @var int $iconOffsetY */
     protected $iconOffsetY = -12;
 
+    /** @var int $shadowOffsetX */
+    protected $shadowOffsetX = 24;
+
+    /** @var int $shadowOffsetY */
+    protected $shadowOffsetY = 18;
+
     /** @var ImagineInterface $imagine */
     protected $imagine;
 
@@ -64,7 +70,7 @@ class ExtraMarkerPrinter
 
     public function paint(Canvas $canvas): ExtraMarkerPrinter
     {
-        //$this->paintShadow($canvas); looks like shadows are currently broken, will fix that later
+        $this->paintShadow($canvas);
         $this->paintMarker($canvas);
 
         return $this;
@@ -148,41 +154,19 @@ class ExtraMarkerPrinter
         $destX -= $this->baseShadowWidth * $this->markerSize;
         $destY -= $this->baseShadowHeight;
 
-        imagecopyresampled(
-            $canvas->getImage(),
-            $shadowImage,
-            $destX,
-            $destY,
-            0,
-            0,
-            $this->baseShadowWidth,
-            $this->baseShadowHeight,
-            $this->baseShadowWidth,
-            $this->baseShadowHeight
-        );
+        $point = new Point($destX + $this->shadowOffsetX, $destY + $this->shadowOffsetY);
+
+        $canvas->getImage()->paste($shadowImage, $point);
 
         return $this;
     }
 
-    protected function createShadow()
+    protected function createShadow(): ImageInterface
     {
-        $shadowImgUrl = __DIR__.'/../../../images/marker_shadow.png';
-        $shadow = imagecreatefrompng($shadowImgUrl);
-
-        $shadowImage = imagecreatetruecolor(21, 14);
-        $transparentColor = imagecolorallocatealpha($shadowImage, 255, 255, 255, 0);
-        imagefill($shadowImage, 0, 0, $transparentColor);
-
-        imagecopy(
-            $shadow,
-            $shadowImage,
-            0,
-            0,
-            0,
-            0,
-            $this->baseShadowWidth,
-            $this->baseShadowHeight
-        );
+        $shadowImage = $this
+            ->imagine
+            ->open(__DIR__.'/../../../images/marker_shadow.png')
+        ;
 
         return $shadowImage;
     }
