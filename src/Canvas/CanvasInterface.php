@@ -2,9 +2,11 @@
 
 namespace StaticMapLite\Canvas;
 
+use Imagine\Image\ImageInterface;
+
 interface CanvasInterface
 {
-    public function getImage();
+    public function getImage(): ImageInterface;
     public function getWidth(): int;
     public function getHeight(): int;
     public function getCenterX(): float;
