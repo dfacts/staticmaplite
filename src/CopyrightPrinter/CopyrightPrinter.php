@@ -14,6 +14,9 @@ class CopyrightPrinter implements CopyrightPrinterInterface
     /** @var CanvasInterface $canvas */
     protected $canvas;
 
+    /** @var int $offset */
+    protected $offset = 10;
+
     public function setCanvas(CanvasInterface $canvas): CopyrightPrinterInterface
     {
         $this->canvas = $canvas;
@@ -26,7 +29,10 @@ class CopyrightPrinter implements CopyrightPrinterInterface
         $imagine = new Imagine();
         $copyrightImage = $imagine->open($this->copyrightPath);
 
-        $point = new Point(0,0);
+        $canvasSize = $this->canvas->getImage()->getSize();
+        $copyrightSize = $copyrightImage->getSize();
+
+        $point = new Point($canvasSize->getWidth() - $copyrightSize->getWidth() - $this->offset,$canvasSize->getHeight() - $copyrightSize->getHeight() - $this->offset);
 
         $this->canvas->getImage()->paste($copyrightImage, $point);
 
