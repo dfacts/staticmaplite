@@ -2,6 +2,7 @@
 
 namespace StaticMapLite\ElementPrinter\Polyline;
 
+use Imagine\Image\Palette\Color\ColorInterface;
 use Imagine\Image\Point;
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\Element\Polyline\Polyline;
@@ -27,8 +28,7 @@ class PolylinePrinter
     public function paint(Canvas $canvas): PolylinePrinter
     {
         $pointList = $this->convertPolylineToPointList($canvas);
-
-        $color = $canvas->getImage()->palette()->color('f00');
+        $color = $this->getPolylineColor($canvas);
 
         $startPoint = null;
         $endPoint = null;
@@ -44,9 +44,17 @@ class PolylinePrinter
 
             $startPoint = $endPoint;
         }
-
-
+        
         return $this;
+    }
+
+    protected function getPolylineColor(Canvas $canvas): ColorInterface
+    {
+        return $canvas->getImage()->palette()->color([
+            $this->polyline->getColorRed(),
+            $this->polyline->getColorGreen(),
+            $this->polyline->getColorBlue(),
+        ]);
     }
 
     protected function convertPolylineToPointList(Canvas $canvas): array
