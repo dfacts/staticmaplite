@@ -3,11 +3,12 @@
 namespace StaticMapLite\ElementPrinter\Marker;
 
 use Imagine\Gd\Font;
+use Imagine\Image\AbstractFont;
 use Imagine\Image\Box;
-use Imagine\Image\FontInterface;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\Point;
+use Imagine\Image\Point\Center;
 use StaticMapLite\Canvas\Canvas;
 use StaticMapLite\Element\Marker\AbstractMarker;
 use StaticMapLite\Element\Marker\ExtraMarker;
@@ -15,6 +16,12 @@ use StaticMapLite\Util;
 
 class ExtraMarkerPrinter
 {
+    /** @var int $iconOffsetX */
+    protected $iconOffsetX = 0;
+
+    /** @var int $iconOffsetY */
+    protected $iconOffsetY = -12;
+
     /** @var ImagineInterface $imagine */
     protected $imagine;
 
@@ -97,7 +104,7 @@ class ExtraMarkerPrinter
 
         $markerImage = $extramarkers->crop($point, $box);
 
-        //$this->writeMarker($markerImage);
+        $this->writeMarker($markerImage);
 
         return $markerImage;
     }
@@ -105,21 +112,24 @@ class ExtraMarkerPrinter
     protected function writeMarker(ImageInterface $markerImage): ExtraMarkerPrinter
     {
         $text = json_decode(sprintf('"&#x%s;"', $this->marker->getAwesome()));
+        $font = $this->getFont($markerImage);
 
-        $bbox = imagettfbbox($fontSize, 0, $fontFile, $text);
+        $textBox = $font->box($text);
+        $textCenterPosition = new Center($textBox);
+        $imageCenterPosition = new Center($markerImage->getSize());
+        $centeredTextPosition = new Point(
+            $imageCenterPosition->getX() - $textCenterPosition->getX() + $this->iconOffsetX,
+            $imageCenterPosition->getY() - $textCenterPosition->getY() + $this->iconOffsetY
+        );
 
-        $x = $bbox[0] + (imagesx($markerImage) / 2) - ($bbox[4] / 2) + 3;
-        $y = 42;
-
-
-        imagettftext($markerImage, $fontSize, 0, $x, $y, $white, $fontFile, $text);
+        $markerImage->draw()->text($text, $font, $centeredTextPosition);
 
         return $this;
     }
 
-    protected function getFont(ImageInterface $markerImage): FontInterface
+    protected function getFont(ImageInterface $markerImage): AbstractFont
     {
-        $fontColor = $markerImage->palette()->color('white');
+        $fontColor = $markerImage->palette()->color('fff');
         $fontSize = 20;
         $fontFilename = __DIR__.'/../../../fonts/fontawesome-webfont.ttf';
 
